@@ -6,6 +6,8 @@ import { FrameList } from "./editor/frame-list";
 import styled from "styled-components";
 import { ActiveFrame } from "./editor/active-frame";
 import { AddFrameButton } from "./editor/add-frame-button";
+import { spriteSheetStore } from "./store/sprite-sheet.store";
+import { FrameEditor } from "./editor/frame-editor";
 
 const headerHeight = "50px";
 const framesWidth = "400px";
@@ -55,6 +57,9 @@ function App() {
       <Content>
         <CanvasContainer>
           <ImageList />
+          {spriteSheetStore.frames.map((frame) => (
+            <FrameEditor frame={frame} key={frame.name} />
+          ))}
         </CanvasContainer>
         <FramesContainer>
           <ActiveFrame />
