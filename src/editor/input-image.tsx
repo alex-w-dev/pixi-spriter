@@ -1,5 +1,5 @@
 import React, { ChangeEvent } from "react";
-import { spiteSheetStore } from "../store/sprite-sheet.store";
+import { spriteSheetStore } from "../store/sprite-sheet.store";
 
 function onFileChange(e: ChangeEvent<HTMLInputElement>) {
   for (const file of Array.from(e.target.files || [])) {
@@ -8,7 +8,7 @@ function onFileChange(e: ChangeEvent<HTMLInputElement>) {
     const fileReader = new FileReader();
 
     fileReader.addEventListener("load", function (evt) {
-      spiteSheetStore.addImage({
+      spriteSheetStore.addImage({
         name: file.name,
         src: (evt.target!.result || "").toString(),
       });

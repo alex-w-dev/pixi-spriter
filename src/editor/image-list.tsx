@@ -1,6 +1,6 @@
 import React from "react";
 import { observer } from "mobx-react";
-import { spiteSheetStore } from "../store/sprite-sheet.store";
+import { spriteSheetStore } from "../store/sprite-sheet.store";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -14,7 +14,7 @@ const ImageFrame = styled.div`
 `;
 const Actions = styled.div`
   position: absolute;
-  right: 0;
+  left: 0;
   top: 0;
   opacity: 0.5;
 
@@ -26,11 +26,11 @@ const Actions = styled.div`
 export const ImageList: React.FC = observer(() => {
   return (
     <Container>
-      {spiteSheetStore.images.map((img, index) => (
+      {spriteSheetStore.images.map((img, index) => (
         <ImageFrame key={index}>
           <Actions>
             {img.name}{" "}
-            <button onClick={() => spiteSheetStore.removeImage(img)}>
+            <button onClick={() => spriteSheetStore.removeImage(img)}>
               Remove
             </button>
           </Actions>

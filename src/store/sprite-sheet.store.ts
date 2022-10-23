@@ -1,4 +1,4 @@
-import { intercept, makeAutoObservable, observe, reaction, toJS } from "mobx";
+import { makeAutoObservable, toJS } from "mobx";
 import * as PIXI from "pixi.js";
 import { throttle } from "lodash";
 
@@ -21,6 +21,13 @@ export type IImage = {
 };
 
 export class SpriteSheetStore {
+  get activeFrame(): IFrame | undefined {
+    if (this.activeFrameIndex === undefined) {
+      return undefined;
+    } else {
+      return this.frames[this.activeFrameIndex];
+    }
+  }
   images: IImage[] = []; // base64 images
 
   spriteSheet: PIXI.ISpritesheetData = {
@@ -32,12 +39,17 @@ export class SpriteSheetStore {
   };
 
   frames: IFrame[] = [];
-  activeFrame?: IFrame;
+  activeFrameIndex?: number;
 
   constructor() {
     this.restoreDataFromLocalStorage();
 
     makeAutoObservable(this);
+  }
+
+  activeFrameUpdate(cb: () => void) {
+    cb();
+    this.saveBackup();
   }
 
   addNewFrame() {
@@ -60,7 +72,7 @@ export class SpriteSheetStore {
   }
 
   activateFrame(frame: IFrame): void {
-    this.activeFrame = frame;
+    this.activeFrameIndex = this.frames.indexOf(frame);
     this.saveBackup();
   }
 
@@ -78,9 +90,9 @@ export class SpriteSheetStore {
     localStorage.setItem(
       localStorageKey,
       JSON.stringify({
-        images: toJS(spiteSheetStore.images),
-        frames: toJS(spiteSheetStore.frames),
-        activeFrame: toJS(spiteSheetStore.activeFrame),
+        images: toJS(this.images),
+        frames: toJS(this.frames),
+        activeFrameIndex: toJS(this.activeFrameIndex),
       })
     );
   }, 1000);
@@ -88,9 +100,12 @@ export class SpriteSheetStore {
   restoreDataFromLocalStorage(): void {
     const data = localStorage.getItem(localStorageKey);
     if (data) {
-      const parsed: SpriteSheetStore = JSON.parse(data);
-      Object.assign(this, parsed);
+      const parsed = JSON.parse(data);
+
+      this.images = parsed.images;
+      this.frames = parsed.frames;
+      this.activeFrameIndex = parsed.activeFrameIndex;
     }
   }
 }
-export const spiteSheetStore = new SpriteSheetStore();
+export const spriteSheetStore = new SpriteSheetStore();
