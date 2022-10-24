@@ -8,6 +8,7 @@ import { ActiveFrame } from "./editor/active-frame";
 import { AddFrameButton } from "./editor/add-frame-button";
 import { spriteSheetStore } from "./store/sprite-sheet.store";
 import { FrameEditor } from "./editor/frame-editor";
+import { AllImagesInOne } from "./editor/all-images-in-one";
 
 const headerHeight = "50px";
 const framesWidth = "400px";
@@ -51,12 +52,13 @@ function App() {
   return (
     <Container>
       <Header>
-        <InputImage />
         <AddFrameButton />
       </Header>
       <Content>
         <CanvasContainer>
-          <ImageList />
+          {/*<ImageList />*/}
+          <AllImagesInOne />
+          <InputImage />
           {spriteSheetStore.frames.map((frame) => (
             <FrameEditor frame={frame} key={frame.name} />
           ))}

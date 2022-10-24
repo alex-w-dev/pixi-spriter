@@ -18,6 +18,8 @@ export type IFrame = {
 export type IImage = {
   src: string;
   name: string;
+  w: number;
+  h: number;
 };
 
 export class SpriteSheetStore {

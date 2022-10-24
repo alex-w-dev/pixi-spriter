@@ -8,10 +8,18 @@ function onFileChange(e: ChangeEvent<HTMLInputElement>) {
     const fileReader = new FileReader();
 
     fileReader.addEventListener("load", function (evt) {
-      spriteSheetStore.addImage({
-        name: file.name,
-        src: (evt.target!.result || "").toString(),
-      });
+      const src = (evt.target!.result || "").toString();
+      const img = new Image();
+
+      img.src = src;
+      img.onload = () => {
+        spriteSheetStore.addImage({
+          name: file.name,
+          src,
+          h: img.naturalHeight,
+          w: img.naturalWidth,
+        });
+      };
     });
 
     fileReader.readAsDataURL(file);
