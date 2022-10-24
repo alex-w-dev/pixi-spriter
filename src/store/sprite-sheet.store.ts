@@ -1,18 +1,15 @@
-import { makeAutoObservable, toJS } from "mobx";
+import { makeAutoObservable, runInAction, toJS } from "mobx";
 import * as PIXI from "pixi.js";
 import { throttle } from "lodash";
 
 const localStorageKey = "pixiSpriterData";
 
 export type IFrame = {
-  imageUrl?: string;
-  x?: number;
-  y?: number;
+  x: number;
+  y: number;
   name: string;
   w: number;
   h: number;
-  globalX: number;
-  globalY: number;
 };
 
 export type IImage = {
@@ -30,7 +27,8 @@ export class SpriteSheetStore {
       return this.frames[this.activeFrameIndex];
     }
   }
-  images: IImage[] = []; // base64 images
+  images: IImage[] = []; // base64 images;
+  allImagesInOne?: IImage;
 
   spriteSheet: PIXI.ISpritesheetData = {
     frames: {},
@@ -59,15 +57,9 @@ export class SpriteSheetStore {
       name: "Sprite" + Date.now(),
       w: 100,
       h: 100,
-      globalX: 0,
-      globalY: 0,
+      x: 0,
+      y: 0,
     };
-
-    if (this.images.length) {
-      frame.imageUrl = this.images[0].src;
-      frame.x = 0;
-      frame.y = 0;
-    }
 
     this.frames.push(frame);
     this.saveBackup();
@@ -80,12 +72,50 @@ export class SpriteSheetStore {
 
   removeImage(image: IImage) {
     this.images = this.images.filter((img) => img !== image);
+    this.updateAllImagesInOne();
     this.saveBackup();
   }
 
   addImage(image: IImage) {
     this.images.push(image);
+    this.updateAllImagesInOne();
     this.saveBackup();
+  }
+
+  async updateAllImagesInOne() {
+    const canvasHeight = this.images.reduce((h, image) => (h += image.h), 0);
+    const canvasWidth = Math.max(...this.images.map((image) => image.w));
+    const c = document.createElement("canvas");
+    c.height = canvasHeight;
+    c.width = canvasWidth;
+    const ctx = c.getContext("2d");
+    let imageY = 0;
+
+    await Promise.all(
+      this.images.map((image) => {
+        const imageTag = new Image();
+        imageTag.src = image.src;
+        const selfImageY = imageY;
+        imageY += image.h;
+
+        return new Promise((res) => {
+          imageTag.onload = () => {
+            ctx!.drawImage(imageTag, 0, selfImageY, image.w, image.h);
+            res(imageTag);
+          };
+        });
+      })
+    );
+
+    runInAction(() => {
+      this.allImagesInOne = {
+        src: c.toDataURL("image/png"),
+        w: canvasWidth,
+        h: canvasHeight,
+        name: "all-in-one.png",
+      };
+      this.saveBackup();
+    });
   }
 
   saveBackup = throttle(() => {
@@ -95,6 +125,7 @@ export class SpriteSheetStore {
         images: toJS(this.images),
         frames: toJS(this.frames),
         activeFrameIndex: toJS(this.activeFrameIndex),
+        allImagesInOne: toJS(this.allImagesInOne),
       })
     );
   }, 1000);
@@ -107,6 +138,7 @@ export class SpriteSheetStore {
       this.images = parsed.images;
       this.frames = parsed.frames;
       this.activeFrameIndex = parsed.activeFrameIndex;
+      this.allImagesInOne = parsed.allImagesInOne;
     }
   }
 }

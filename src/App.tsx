@@ -1,14 +1,12 @@
 import React from "react";
 import "./App.css";
 import { InputImage } from "./editor/input-image";
-import { ImageList } from "./editor/image-list";
 import { FrameList } from "./editor/frame-list";
 import styled from "styled-components";
 import { ActiveFrame } from "./editor/active-frame";
 import { AddFrameButton } from "./editor/add-frame-button";
-import { spriteSheetStore } from "./store/sprite-sheet.store";
-import { FrameEditor } from "./editor/frame-editor";
 import { AllImagesInOne } from "./editor/all-images-in-one";
+import { EditorFrameList } from "./editor/editor-frame-list";
 
 const headerHeight = "50px";
 const framesWidth = "400px";
@@ -59,9 +57,7 @@ function App() {
           {/*<ImageList />*/}
           <AllImagesInOne />
           <InputImage />
-          {spriteSheetStore.frames.map((frame) => (
-            <FrameEditor frame={frame} key={frame.name} />
-          ))}
+          <EditorFrameList />
         </CanvasContainer>
         <FramesContainer>
           <ActiveFrame />

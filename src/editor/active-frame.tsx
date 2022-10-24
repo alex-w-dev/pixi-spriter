@@ -26,7 +26,7 @@ export const ActiveFrame: React.FC = observer(() => {
         style={{
           width: `${frame.w}px`,
           height: `${frame.h}px`,
-          backgroundImage: `url(${frame.imageUrl})`,
+          backgroundImage: `url(${spriteSheetStore.allImagesInOne?.src})`,
           backgroundPosition: `${frame.x}px ${frame.y}px`,
         }}
       />
@@ -99,34 +99,6 @@ export const ActiveFrame: React.FC = observer(() => {
                   onChange={(e) =>
                     spriteSheetStore.activeFrameUpdate(() => {
                       frame.y = +e.target.value;
-                    })
-                  }
-                />
-              </td>
-            </tr>
-            <tr>
-              <td>gX:</td>
-              <td>
-                <input
-                  type="number"
-                  step="1"
-                  value={frame.globalX}
-                  onChange={(e) =>
-                    spriteSheetStore.activeFrameUpdate(() => {
-                      frame.globalX = +e.target.value;
-                    })
-                  }
-                />
-              </td>
-              <td>gY:</td>
-              <td>
-                <input
-                  type="number"
-                  step="1"
-                  value={frame.globalY}
-                  onChange={(e) =>
-                    spriteSheetStore.activeFrameUpdate(() => {
-                      frame.globalY = +e.target.value;
                     })
                   }
                 />

@@ -1,6 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import { IFrame, spriteSheetStore } from "../store/sprite-sheet.store";
+import { observer } from "mobx-react";
 
 const Container = styled.div`
   position: absolute;
@@ -25,19 +26,21 @@ const Container = styled.div`
   }
 `;
 
-export const FrameEditor: React.FC<{ frame: IFrame }> = ({ frame }) => {
-  return (
-    <Container
-      style={{
-        opacity: frame === spriteSheetStore.activeFrame ? 1 : 0.5,
-        left: `${frame.globalX}.px`,
-        top: `${frame.globalY}.px`,
-        width: `${frame.w}.px`,
-        height: `${frame.h}.px`,
-      }}
-    >
-      <div className="title">{frame.name}</div>
-      <div className="resizer" />
-    </Container>
-  );
-};
+export const FrameEditor: React.FC<{ frame: IFrame }> = observer(
+  ({ frame }) => {
+    return (
+      <Container
+        style={{
+          opacity: frame === spriteSheetStore.activeFrame ? 1 : 0.5,
+          left: `${frame.x}.px`,
+          top: `${frame.y}.px`,
+          width: `${frame.w}.px`,
+          height: `${frame.h}.px`,
+        }}
+      >
+        <div className="title">{frame.name}</div>
+        <div className="resizer" />
+      </Container>
+    );
+  }
+);
