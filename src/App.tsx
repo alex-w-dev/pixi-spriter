@@ -9,7 +9,7 @@ import { AllImagesInOne } from "./editor/all-images-in-one";
 import { EditorFrameList } from "./editor/editor-frame-list";
 
 const headerHeight = "50px";
-const framesWidth = "400px";
+const framesWidth = "204px";
 
 const Container = styled.div`
   width: 100vw;

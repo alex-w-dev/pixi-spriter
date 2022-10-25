@@ -22,24 +22,34 @@ const Container = styled.div`
 
   .resizer {
     position: absolute;
-    cursor: ew-resize;
+    cursor: nwse-resize;
     width: 30px;
     height: 30px;
-    right: 0;
-    bottom: 0;
+    right: -1px;
+    bottom: -1px;
+    background: url("https://developer.mozilla.org/en-US/docs/Web/CSS/cursor/4-resize.gif")
+      no-repeat center;
   }
 `;
 
-function onMouseDown(frame: IFrame) {
+function startDraggingFrame(frame: IFrame) {
   spriteSheetStore.setActiveFrame(frame);
   draggingFrameStore.setDraggingFrame(frame);
+}
+function startResizingFrame(frame: IFrame) {
+  spriteSheetStore.setActiveFrame(frame);
+  draggingFrameStore.setResizingFrame(frame);
 }
 
 export const FrameEditor: React.FC<{ frame: IFrame }> = observer(
   ({ frame }) => {
     return (
       <Container
-        onMouseDown={onMouseDown.bind(null, frame)}
+        onMouseDown={(e) => {
+          (e.target as HTMLDivElement).classList.contains("resizer")
+            ? startResizingFrame(frame)
+            : startDraggingFrame(frame);
+        }}
         style={{
           opacity: frame === spriteSheetStore.activeFrame ? 1 : 0.5,
           left: `${frame.x}.px`,

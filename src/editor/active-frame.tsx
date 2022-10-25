@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { observer } from "mobx-react";
 import { spriteSheetStore } from "../store/sprite-sheet.store";
 import styled from "styled-components";
@@ -11,6 +11,20 @@ const EmptyContainer = styled.div`
 `;
 const Container = styled.div`
   width: 100%;
+  white-space: nowrap;
+
+  input[type="number"] {
+    width: 80px;
+  }
+  input[type="text"] {
+    width: 150px;
+  }
+`;
+
+const ImageContainer = styled.div`
+  max-width: 100%;
+  border: 1px solid gray;
+  background-repeat: no-repeat;
 `;
 
 export const ActiveFrame: React.FC = observer(() => {
@@ -18,12 +32,23 @@ export const ActiveFrame: React.FC = observer(() => {
     return <EmptyContainer>No active frame</EmptyContainer>;
   }
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
   const frame = spriteSheetStore.activeFrame;
+  let zoom = 1;
+
+  if (containerRef.current) {
+    const clientRect = containerRef.current.getBoundingClientRect();
+    if (clientRect.width < frame.w) {
+      zoom = clientRect.width / frame.w;
+    }
+  }
 
   return (
-    <Container>
-      <div
+    <Container ref={containerRef}>
+      <ImageContainer
         style={{
+          zoom,
           width: `${frame.w}px`,
           height: `${frame.h}px`,
           backgroundImage: `url(${spriteSheetStore.allImagesInOne?.src})`,
@@ -34,8 +59,8 @@ export const ActiveFrame: React.FC = observer(() => {
         <table>
           <tbody>
             <tr>
-              <td colSpan={2}>Name:</td>
-              <td colSpan={2}>
+              <td colSpan={4}>
+                Name:{" "}
                 <input
                   type="text"
                   step="1"
