@@ -1,7 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { IFrame, spriteSheetStore } from "../store/sprite-sheet.store";
 import { observer } from "mobx-react";
+import {
+  draggingFrameStore,
+  DraggingFrameStore,
+} from "../store/dragging-frame.store";
 
 const Container = styled.div`
   position: absolute;
@@ -26,10 +30,16 @@ const Container = styled.div`
   }
 `;
 
+function onMouseDown(frame: IFrame) {
+  spriteSheetStore.setActiveFrame(frame);
+  draggingFrameStore.setDraggingFrame(frame);
+}
+
 export const FrameEditor: React.FC<{ frame: IFrame }> = observer(
   ({ frame }) => {
     return (
       <Container
+        onMouseDown={onMouseDown.bind(null, frame)}
         style={{
           opacity: frame === spriteSheetStore.activeFrame ? 1 : 0.5,
           left: `${frame.x}.px`,

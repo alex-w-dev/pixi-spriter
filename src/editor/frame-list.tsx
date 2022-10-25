@@ -14,7 +14,7 @@ export const FrameList: React.FC = observer(() => {
         <Frame
           key={index}
           active={frame === spriteSheetStore.activeFrame}
-          onClick={() => spriteSheetStore.activateFrame(frame)}
+          onClick={() => spriteSheetStore.setActiveFrame(frame)}
         >
           {frame.name}
         </Frame>

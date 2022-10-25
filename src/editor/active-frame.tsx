@@ -27,7 +27,7 @@ export const ActiveFrame: React.FC = observer(() => {
           width: `${frame.w}px`,
           height: `${frame.h}px`,
           backgroundImage: `url(${spriteSheetStore.allImagesInOne?.src})`,
-          backgroundPosition: `${frame.x}px ${frame.y}px`,
+          backgroundPosition: `${-frame.x}px ${-frame.y}px`,
         }}
       />
       <div>
@@ -41,7 +41,7 @@ export const ActiveFrame: React.FC = observer(() => {
                   step="1"
                   value={frame.name}
                   onChange={(e) =>
-                    spriteSheetStore.activeFrameUpdate(() => {
+                    spriteSheetStore.frameUpdateTool(() => {
                       frame.name = e.target.value;
                     })
                   }
@@ -56,7 +56,7 @@ export const ActiveFrame: React.FC = observer(() => {
                   step="1"
                   value={frame.w}
                   onChange={(e) =>
-                    spriteSheetStore.activeFrameUpdate(() => {
+                    spriteSheetStore.frameUpdateTool(() => {
                       frame.w = +e.target.value;
                     })
                   }
@@ -69,7 +69,7 @@ export const ActiveFrame: React.FC = observer(() => {
                   step="1"
                   value={frame.h}
                   onChange={(e) =>
-                    spriteSheetStore.activeFrameUpdate(() => {
+                    spriteSheetStore.frameUpdateTool(() => {
                       frame.h = +e.target.value;
                     })
                   }
@@ -84,7 +84,7 @@ export const ActiveFrame: React.FC = observer(() => {
                   step="1"
                   value={frame.x}
                   onChange={(e) =>
-                    spriteSheetStore.activeFrameUpdate(() => {
+                    spriteSheetStore.frameUpdateTool(() => {
                       frame.x = +e.target.value;
                     })
                   }
@@ -97,7 +97,7 @@ export const ActiveFrame: React.FC = observer(() => {
                   step="1"
                   value={frame.y}
                   onChange={(e) =>
-                    spriteSheetStore.activeFrameUpdate(() => {
+                    spriteSheetStore.frameUpdateTool(() => {
                       frame.y = +e.target.value;
                     })
                   }

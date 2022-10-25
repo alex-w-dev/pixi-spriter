@@ -27,6 +27,7 @@ export class SpriteSheetStore {
       return this.frames[this.activeFrameIndex];
     }
   }
+  draggingFrame?: IFrame;
   images: IImage[] = []; // base64 images;
   allImagesInOne?: IImage;
 
@@ -47,7 +48,7 @@ export class SpriteSheetStore {
     makeAutoObservable(this);
   }
 
-  activeFrameUpdate(cb: () => void) {
+  frameUpdateTool(cb: () => void) {
     cb();
     this.saveBackup();
   }
@@ -65,7 +66,7 @@ export class SpriteSheetStore {
     this.saveBackup();
   }
 
-  activateFrame(frame: IFrame): void {
+  setActiveFrame(frame: IFrame): void {
     this.activeFrameIndex = this.frames.indexOf(frame);
     this.saveBackup();
   }
