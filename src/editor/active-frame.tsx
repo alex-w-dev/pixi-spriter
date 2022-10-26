@@ -2,6 +2,7 @@ import React, { useRef } from "react";
 import { observer } from "mobx-react";
 import { spriteSheetStore } from "../store/sprite-sheet.store";
 import styled from "styled-components";
+import { InZoom } from "./in-zoom";
 
 const EmptyContainer = styled.div`
   padding: 10px;
@@ -32,29 +33,21 @@ export const ActiveFrame: React.FC = observer(() => {
     return <EmptyContainer>No active frame</EmptyContainer>;
   }
 
-  const containerRef = useRef<HTMLDivElement>(null);
-
   const frame = spriteSheetStore.activeFrame;
-  let zoom = 1;
-
-  if (containerRef.current) {
-    const clientRect = containerRef.current.getBoundingClientRect();
-    if (clientRect.width < frame.w) {
-      zoom = clientRect.width / frame.w;
-    }
-  }
 
   return (
-    <Container ref={containerRef}>
-      <ImageContainer
-        style={{
-          zoom,
-          width: `${frame.w}px`,
-          height: `${frame.h}px`,
-          backgroundImage: `url(${spriteSheetStore.allImagesInOne?.src})`,
-          backgroundPosition: `${-frame.x}px ${-frame.y}px`,
-        }}
-      />
+    <Container>
+      <InZoom width={frame.w}>
+        <ImageContainer
+          style={{
+            width: `${frame.w}px`,
+            height: `${frame.h}px`,
+            backgroundImage: `url(${spriteSheetStore.allImagesInOne?.src})`,
+            backgroundPosition: `${-frame.x}px ${-frame.y}px`,
+          }}
+        />
+      </InZoom>
+
       <div>
         <table>
           <tbody>
