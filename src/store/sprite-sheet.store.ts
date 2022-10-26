@@ -1,6 +1,9 @@
 import { makeAutoObservable, runInAction, toJS } from "mobx";
 import * as PIXI from "pixi.js";
-import { throttle } from "lodash";
+import { debounce, throttle } from "lodash";
+import { BaseTexture, ISpritesheetData, Spritesheet } from "pixi.js";
+import { Dict } from "@pixi/utils";
+import { ISpritesheetFrameData } from "@pixi/spritesheet";
 
 const localStorageKey = "pixiSpriterData";
 
@@ -11,6 +14,16 @@ export type IFrame = {
   w: number;
   h: number;
 };
+
+export type IAnimation = { name: string; frames: IFrame };
+
+interface ISpriteSheetJsonData extends ISpritesheetData {
+  meta: {
+    image: string;
+    size: { w: number; h: number };
+    scale: string;
+  };
+}
 
 export type IImage = {
   src: string;
@@ -31,25 +44,22 @@ export class SpriteSheetStore {
   images: IImage[] = []; // base64 images;
   allImagesInOne?: IImage;
 
-  spriteSheet: PIXI.ISpritesheetData = {
-    frames: {},
-    animations: {},
-    meta: {
-      scale: "1",
-    },
-  };
+  spriteSheet?: Spritesheet;
 
   frames: IFrame[] = [];
+  animations: IAnimation[] = [];
   activeFrameIndex?: number;
 
   constructor() {
     this.restoreDataFromLocalStorage();
+    this.updatePixiSpriteSheet();
 
     makeAutoObservable(this);
   }
 
-  frameUpdateTool(cb: () => void) {
+  updateAndSave(cb: () => void) {
     cb();
+    this.updatePixiSpriteSheet();
     this.saveBackup();
   }
 
@@ -75,12 +85,14 @@ export class SpriteSheetStore {
     this.images = this.images.filter((img) => img !== image);
     this.updateAllImagesInOne();
     this.saveBackup();
+    this.updatePixiSpriteSheet();
   }
 
   addImage(image: IImage) {
     this.images.push(image);
     this.updateAllImagesInOne();
     this.saveBackup();
+    this.updatePixiSpriteSheet();
   }
 
   async updateAllImagesInOne() {
@@ -116,6 +128,7 @@ export class SpriteSheetStore {
         name: "all-in-one.png",
       };
       this.saveBackup();
+      this.updatePixiSpriteSheet();
     });
   }
 
@@ -141,6 +154,73 @@ export class SpriteSheetStore {
       this.activeFrameIndex = parsed.activeFrameIndex;
       this.allImagesInOne = parsed.allImagesInOne;
     }
+  }
+
+  lastI = 0;
+  updatePixiSpriteSheet = debounce(() => {
+    const pixiSpriteSheetJsonData =
+      spriteSheetStore.getPixiSpriteSheetJsonData();
+
+    const spriteSheet = new Spritesheet(
+      BaseTexture.from(pixiSpriteSheetJsonData.meta.image),
+      pixiSpriteSheetJsonData
+    );
+    let i = (this.lastI = Math.random());
+
+    spriteSheet.parse().then(() => {
+      if (i === this.lastI) {
+        runInAction(() => {
+          this.spriteSheet = spriteSheet;
+        });
+      }
+    });
+  }, 100);
+
+  getPixiSpriteSheetJsonData(): ISpriteSheetJsonData {
+    // Create object to store sprite sheet data
+    if (!this.allImagesInOne) {
+      return {
+        meta: {
+          image: "none",
+          scale: "1",
+          size: { w: 0, h: 0 },
+        },
+        frames: {},
+      };
+    }
+
+    return toJS({
+      frames: {
+        ...this.frames.reduce((acc, frame) => {
+          acc[frame.name] = {
+            frame: {
+              x: frame.x,
+              y: frame.y,
+              w: frame.w,
+              h: frame.h,
+            },
+            sourceSize: {
+              w: frame.w,
+              h: frame.h,
+            },
+            spriteSourceSize: {
+              x: 0,
+              y: 0,
+            },
+          };
+
+          return acc;
+        }, {} as Dict<ISpritesheetFrameData>),
+      },
+      meta: {
+        image: this.allImagesInOne.src,
+        size: { w: this.allImagesInOne.w, h: this.allImagesInOne.h },
+        scale: "1",
+      },
+      animations: {
+        enemy: this.frames.map((f) => f.name), //array of frames by name
+      },
+    });
   }
 }
 export const spriteSheetStore = new SpriteSheetStore();

@@ -9,7 +9,7 @@ export class DraggingFrameStore {
   constructor() {
     window.addEventListener("mousemove", (e) => {
       if (this.draggingFrame) {
-        spriteSheetStore.frameUpdateTool(() => {
+        spriteSheetStore.updateAndSave(() => {
           if (this.draggingFrame) {
             this.draggingFrame.x += e.x - this.mouseX;
             this.draggingFrame.y += e.y - this.mouseY;
@@ -17,7 +17,7 @@ export class DraggingFrameStore {
         });
       }
       if (this.resizingFrame) {
-        spriteSheetStore.frameUpdateTool(() => {
+        spriteSheetStore.updateAndSave(() => {
           if (this.resizingFrame) {
             this.resizingFrame.w = Math.max(
               0,

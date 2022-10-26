@@ -56,10 +56,9 @@ export const ActiveFrame: React.FC = observer(() => {
                 Name:{" "}
                 <input
                   type="text"
-                  step="1"
                   value={frame.name}
                   onChange={(e) =>
-                    spriteSheetStore.frameUpdateTool(() => {
+                    spriteSheetStore.updateAndSave(() => {
                       frame.name = e.target.value;
                     })
                   }
@@ -74,7 +73,7 @@ export const ActiveFrame: React.FC = observer(() => {
                   step="1"
                   value={frame.w}
                   onChange={(e) =>
-                    spriteSheetStore.frameUpdateTool(() => {
+                    spriteSheetStore.updateAndSave(() => {
                       frame.w = +e.target.value;
                     })
                   }
@@ -87,7 +86,7 @@ export const ActiveFrame: React.FC = observer(() => {
                   step="1"
                   value={frame.h}
                   onChange={(e) =>
-                    spriteSheetStore.frameUpdateTool(() => {
+                    spriteSheetStore.updateAndSave(() => {
                       frame.h = +e.target.value;
                     })
                   }
@@ -102,7 +101,7 @@ export const ActiveFrame: React.FC = observer(() => {
                   step="1"
                   value={frame.x}
                   onChange={(e) =>
-                    spriteSheetStore.frameUpdateTool(() => {
+                    spriteSheetStore.updateAndSave(() => {
                       frame.x = +e.target.value;
                     })
                   }
@@ -115,7 +114,7 @@ export const ActiveFrame: React.FC = observer(() => {
                   step="1"
                   value={frame.y}
                   onChange={(e) =>
-                    spriteSheetStore.frameUpdateTool(() => {
+                    spriteSheetStore.updateAndSave(() => {
                       frame.y = +e.target.value;
                     })
                   }
