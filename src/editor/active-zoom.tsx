@@ -22,7 +22,7 @@ export class ActiveZoom extends React.Component<PropsWithChildren> {
       e.stopPropagation();
       e.preventDefault();
       this.setState({
-        zoom: this.state.zoom + e.deltaY / 1000,
+        zoom: this.state.zoom - e.deltaY / 1000,
       });
     }
   };

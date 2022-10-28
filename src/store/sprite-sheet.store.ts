@@ -224,6 +224,11 @@ export class SpriteSheetStore {
             x: 0,
             y: 0,
           },
+          anchor: {
+            x: frame.w,
+            y: frame.h,
+          },
+          rotated: false,
         };
 
         return acc;
