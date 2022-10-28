@@ -15,6 +15,7 @@ const Container = styled.div`
 
   &.active {
     opacity: 1;
+    z-index: 10;
 
     .resizer {
       display: block;
@@ -143,7 +144,6 @@ export const FrameEditor: React.FC<{ frame: IFrame }> = observer(
               Array.from(classList)[classList.length - 1] as ResizeDirection
             );
           } else if (classList.contains("anchor")) {
-            console.log(2, "2");
             startAnchoringFrame(frame);
           } else {
             startDraggingFrame(frame);
@@ -151,10 +151,10 @@ export const FrameEditor: React.FC<{ frame: IFrame }> = observer(
         }}
         className={frame === spriteSheetStore.activeFrame ? "active" : ""}
         style={{
-          left: `${frame.x}.px`,
-          top: `${frame.y}.px`,
-          width: `${frame.w}.px`,
-          height: `${frame.h}.px`,
+          left: `${Math.round(frame.x)}.px`,
+          top: `${Math.round(frame.y)}.px`,
+          width: `${Math.round(frame.w)}.px`,
+          height: `${Math.round(frame.h)}.px`,
         }}
       >
         <div className="title">{frame.name}</div>

@@ -1,4 +1,5 @@
 import { IFrame, spriteSheetStore } from "./sprite-sheet.store";
+import { editorStateStore } from "./editor-state.store";
 
 export enum ResizeDirection {
   lt = "lt",
@@ -51,6 +52,15 @@ function stayInFrameDragged(frame: IFrame): IFrame {
   return frame;
 }
 
+function roundFrameData(frame: IFrame): IFrame {
+  frame.x = Math.round(frame.x * 10) / 10;
+  frame.y = Math.round(frame.y * 10) / 10;
+  frame.w = Math.round(frame.w * 10) / 10;
+  frame.h = Math.round(frame.h * 10) / 10;
+
+  return frame;
+}
+
 export class DraggingFrameStore {
   draggingFrame?: IFrame;
   resizingFrame?: IFrame;
@@ -61,8 +71,8 @@ export class DraggingFrameStore {
 
   constructor() {
     window.addEventListener("mousemove", (e) => {
-      const deltaX = e.x - this.mouseX;
-      const deltaY = e.y - this.mouseY;
+      const deltaX = (e.x - this.mouseX) / editorStateStore.zoom;
+      const deltaY = (e.y - this.mouseY) / editorStateStore.zoom;
 
       if (this.draggingFrame) {
         spriteSheetStore.updateAndSave(() => {
@@ -71,6 +81,7 @@ export class DraggingFrameStore {
             this.draggingFrame.y = this.draggingFrame.y + deltaY;
 
             stayInFrameDragged(this.draggingFrame);
+            roundFrameData(this.draggingFrame);
           }
         });
       }
@@ -127,6 +138,7 @@ export class DraggingFrameStore {
             }
 
             stayInFrameResized(this.resizingFrame);
+            roundFrameData(this.resizingFrame);
           }
         });
       }

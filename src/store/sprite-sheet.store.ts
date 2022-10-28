@@ -1,6 +1,6 @@
 import { makeAutoObservable, runInAction, toJS } from "mobx";
 import { debounce, throttle } from "lodash";
-import { BaseTexture, ISpritesheetData, Spritesheet } from "pixi.js";
+import { BaseTexture, ISpritesheetData, Rectangle, Spritesheet } from "pixi.js";
 import { Dict } from "@pixi/utils";
 import { ISpritesheetFrameData } from "@pixi/spritesheet";
 
@@ -193,6 +193,7 @@ export class SpriteSheetStore {
   updatePixiSpriteSheet = debounce(() => {
     const pixiSpriteSheetJsonData =
       spriteSheetStore.getPixiSpriteSheetJsonData();
+    console.log(pixiSpriteSheetJsonData, "pixiSpriteSheetJsonData");
 
     const spriteSheet = new Spritesheet(
       BaseTexture.from(pixiSpriteSheetJsonData.meta.image),
@@ -222,6 +223,23 @@ export class SpriteSheetStore {
       };
     }
 
+    const maxAnchorLeft = Math.max(...this.frames.map((f) => f.anchor.x));
+    const maxAnchorRight = Math.max(
+      ...this.frames.map((f) => f.w - f.anchor.x)
+    );
+    const maxAnchorTop = Math.max(...this.frames.map((f) => f.anchor.y));
+    const maxAnchorBottom = Math.max(
+      ...this.frames.map((f) => f.h - f.anchor.y)
+    );
+    const sourceWidth = maxAnchorRight + maxAnchorLeft;
+    const sourceHeight = maxAnchorTop + maxAnchorBottom;
+    console.log(maxAnchorLeft, "maxAnchorLeft");
+    console.log(maxAnchorRight, "maxAnchorRight");
+    console.log(maxAnchorTop, "maxAnchorTop");
+    console.log(maxAnchorBottom, "maxAnchorBottom");
+    console.log(sourceHeight, "sourceHeight");
+    console.log(sourceWidth, "sourceWidth");
+
     return toJS({
       frames: this.frames.reduce((acc, frame) => {
         acc[frame.name] = {
@@ -232,19 +250,19 @@ export class SpriteSheetStore {
             h: frame.h,
           },
           sourceSize: {
-            w: frame.w,
-            h: frame.h,
+            w: sourceWidth,
+            h: sourceHeight,
           },
           spriteSourceSize: {
-            x: 0,
-            y: 0,
+            x: maxAnchorLeft - frame.anchor.x,
+            y: maxAnchorTop - frame.anchor.y,
           },
           anchor: {
-            x: 0.5,
-            y: 0.5,
+            x: maxAnchorLeft / sourceWidth,
+            y: maxAnchorTop / sourceHeight,
           },
           rotated: false,
-          trimmed: false,
+          trimmed: true,
         };
 
         return acc;
@@ -255,7 +273,7 @@ export class SpriteSheetStore {
         scale: "1",
       },
       animations: this.animations.reduce((acc, animation) => {
-        acc[animation.name] = animation.frames;
+        acc[animation.name] = toJS(animation.frames);
 
         return acc;
       }, {} as Dict<string[]>),

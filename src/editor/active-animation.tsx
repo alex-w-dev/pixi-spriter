@@ -30,6 +30,7 @@ export const ActiveAnimation: React.FC = observer(() => {
   }
 
   const textures = spriteSheet.animations[animation.name];
+  console.log(textures, "textures");
 
   return (
     <SelfContainer>
@@ -39,9 +40,10 @@ export const ActiveAnimation: React.FC = observer(() => {
             <AnimatedSprite
               key={Math.random()} // always reqrite
               textures={textures}
+              updateAnchor={true}
               isPlaying={true}
               initialFrame={0}
-              animationSpeed={0.1}
+              animationSpeed={0.08}
             />
           </Container>
         </Stage>

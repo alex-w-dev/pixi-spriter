@@ -1,10 +1,10 @@
 import React, { PropsWithChildren, RefObject } from "react";
+import { observer, Observer } from "mobx-react";
+import { editorStateStore } from "../store/editor-state.store";
 
+@observer
 export class ActiveZoom extends React.Component<PropsWithChildren> {
   myRef: RefObject<HTMLDivElement> = React.createRef();
-  state = {
-    zoom: 1,
-  };
 
   componentDidMount() {
     // IMPORTANT: notice the `passive: false` option
@@ -21,9 +21,7 @@ export class ActiveZoom extends React.Component<PropsWithChildren> {
     if (e.altKey || e.ctrlKey) {
       e.stopPropagation();
       e.preventDefault();
-      this.setState({
-        zoom: this.state.zoom - e.deltaY / 1000,
-      });
+      editorStateStore.setZoom(editorStateStore.zoom - e.deltaY / 1000);
     }
   };
 
@@ -31,7 +29,7 @@ export class ActiveZoom extends React.Component<PropsWithChildren> {
     return (
       <div
         ref={this.myRef}
-        style={{ zoom: this.state.zoom }}
+        style={{ zoom: editorStateStore.zoom }}
         onWheel={(e) => {}}
       >
         {this.props.children}
