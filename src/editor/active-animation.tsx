@@ -5,7 +5,6 @@ import styled from "styled-components";
 import { Stage } from "@inlet/react-pixi";
 import { AnimatedSprite, Container } from "@inlet/react-pixi/animated";
 import { AddFrameToAnimation } from "./add-frame-to-animation";
-import { toJS } from "mobx";
 
 const EmptyContainer = styled.div`
   padding: 10px;

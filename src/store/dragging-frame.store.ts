@@ -54,6 +54,7 @@ function stayInFrameDragged(frame: IFrame): IFrame {
 export class DraggingFrameStore {
   draggingFrame?: IFrame;
   resizingFrame?: IFrame;
+  anchoringFrame?: IFrame;
   resizeDirection?: ResizeDirection;
   mouseX = 0;
   mouseY = 0;
@@ -70,6 +71,27 @@ export class DraggingFrameStore {
             this.draggingFrame.y = this.draggingFrame.y + deltaY;
 
             stayInFrameDragged(this.draggingFrame);
+          }
+        });
+      }
+      if (this.anchoringFrame) {
+        spriteSheetStore.updateAndSave(() => {
+          if (this.anchoringFrame) {
+            console.log(777, "777");
+            this.anchoringFrame.anchor.x = Math.max(
+              0,
+              Math.min(
+                this.anchoringFrame.w,
+                this.anchoringFrame.anchor.x + deltaX
+              )
+            );
+            this.anchoringFrame.anchor.y = Math.max(
+              0,
+              Math.min(
+                this.anchoringFrame.h,
+                this.anchoringFrame.anchor.y + deltaY
+              )
+            );
           }
         });
       }
@@ -112,21 +134,23 @@ export class DraggingFrameStore {
       this.mouseY = e.y;
     });
     window.addEventListener("mouseleave", () => {
-      if (this.draggingFrame) {
-        this.setDraggingFrame(undefined);
-      }
-      if (this.resizingFrame) {
-        this.setResizingFrame(undefined);
-      }
+      this.resetFrames();
     });
     window.addEventListener("mouseup", () => {
-      if (this.draggingFrame) {
-        this.setDraggingFrame(undefined);
-      }
-      if (this.resizingFrame) {
-        this.setResizingFrame(undefined);
-      }
+      this.resetFrames();
     });
+  }
+
+  resetFrames() {
+    if (this.draggingFrame) {
+      this.setDraggingFrame(undefined);
+    }
+    if (this.resizingFrame) {
+      this.setResizingFrame(undefined);
+    }
+    if (this.anchoringFrame) {
+      this.setAnchoringFrame(undefined);
+    }
   }
 
   setDraggingFrame(frame?: IFrame): void {
@@ -136,6 +160,10 @@ export class DraggingFrameStore {
   setResizingFrame(frame?: IFrame, resizeDirection?: ResizeDirection): void {
     this.resizingFrame = frame;
     this.resizeDirection = resizeDirection;
+  }
+
+  setAnchoringFrame(frame?: IFrame): void {
+    this.anchoringFrame = frame;
   }
 }
 export const draggingFrameStore = new DraggingFrameStore();

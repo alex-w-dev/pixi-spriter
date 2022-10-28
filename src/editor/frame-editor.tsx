@@ -33,6 +33,21 @@ const Container = styled.div`
     justify-content: center;
   }
 
+  .anchor {
+    position: absolute;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: -9px;
+    width: 16px;
+    height: 16px;
+    font-size: 16px;
+    line-height: 16px;
+    background: rgba(255, 255, 255, 0.7);
+    font-weight: bold;
+  }
+
   .resizer {
     display: none;
     position: absolute;
@@ -56,36 +71,43 @@ const Container = styled.div`
       right: -14px;
       bottom: -14px;
     }
+
     &.lt {
       cursor: nwse-resize;
       left: -14px;
       top: -14px;
     }
+
     &.rt {
       cursor: nesw-resize;
       right: -14px;
       top: -14px;
     }
+
     &.lb {
       cursor: nesw-resize;
       left: -14px;
       bottom: -14px;
     }
+
     &.l {
       cursor: ew-resize;
       left: -14px;
       top: calc(50% - 6px);
     }
+
     &.r {
       cursor: ew-resize;
       right: -14px;
       top: calc(50% - 6px);
     }
+
     &.b {
       cursor: ns-resize;
       bottom: -14px;
       left: calc(50% - 6px);
     }
+
     &.t {
       cursor: ns-resize;
       top: -14px;
@@ -102,6 +124,10 @@ function startResizingFrame(frame: IFrame, resizeDirection: ResizeDirection) {
   spriteSheetStore.setActiveFrame(frame);
   draggingFrameStore.setResizingFrame(frame, resizeDirection);
 }
+function startAnchoringFrame(frame: IFrame) {
+  spriteSheetStore.setActiveFrame(frame);
+  draggingFrameStore.setAnchoringFrame(frame);
+}
 
 export const FrameEditor: React.FC<{ frame: IFrame }> = observer(
   ({ frame }) => {
@@ -116,6 +142,9 @@ export const FrameEditor: React.FC<{ frame: IFrame }> = observer(
               frame,
               Array.from(classList)[classList.length - 1] as ResizeDirection
             );
+          } else if (classList.contains("anchor")) {
+            console.log(2, "2");
+            startAnchoringFrame(frame);
           } else {
             startDraggingFrame(frame);
           }
@@ -137,6 +166,12 @@ export const FrameEditor: React.FC<{ frame: IFrame }> = observer(
         <div className="resizer r" />
         <div className="resizer t" />
         <div className="resizer b" />
+        <div
+          className="anchor"
+          style={{ left: `${frame.anchor.x}px`, top: `${frame.anchor.y}px` }}
+        >
+          ✛
+        </div>
       </Container>
     );
   }

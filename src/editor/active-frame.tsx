@@ -15,7 +15,7 @@ const Container = styled.div`
   white-space: nowrap;
 
   input[type="number"] {
-    width: 80px;
+    width: 60px;
   }
   input[type="text"] {
     width: 150px;
@@ -116,6 +116,34 @@ export const ActiveFrame: React.FC = observer(() => {
                   onChange={(e) =>
                     spriteSheetStore.updateAndSave(() => {
                       frame.y = +e.target.value;
+                    })
+                  }
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>a.x:</td>
+              <td>
+                <input
+                  type="number"
+                  step="1"
+                  value={frame.anchor.x}
+                  onChange={(e) =>
+                    spriteSheetStore.updateAndSave(() => {
+                      frame.anchor.x = +e.target.value;
+                    })
+                  }
+                />
+              </td>
+              <td>a.y:</td>
+              <td>
+                <input
+                  type="number"
+                  step="1"
+                  value={frame.anchor.y}
+                  onChange={(e) =>
+                    spriteSheetStore.updateAndSave(() => {
+                      frame.anchor.y = +e.target.value;
                     })
                   }
                 />
