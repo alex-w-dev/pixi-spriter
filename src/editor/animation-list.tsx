@@ -1,23 +1,32 @@
-import React, { ChangeEvent } from "react";
+import React from "react";
 import { observer } from "mobx-react";
 import { spriteSheetStore } from "../store/sprite-sheet.store";
-import styled from "styled-components";
-
-const Frame = styled.div<{ active: boolean }>`
-  border: 1px solid ${(props) => (props.active ? "blue" : "white")};
-`;
+import { ListItem } from "./list-item";
 
 export const AnimationList: React.FC = observer(() => {
   return (
     <div>
       {spriteSheetStore.animations.map((animation, index) => (
-        <Frame
+        <ListItem
           key={index}
           active={animation === spriteSheetStore.activeAnimation}
-          onClick={() => spriteSheetStore.setActiveAnimation(animation)}
+          error={
+            spriteSheetStore.animations.filter((a) => a.name === animation.name)
+              .length > 1
+          }
         >
-          {animation.name}
-        </Frame>
+          <div
+            className="title"
+            onClick={() => spriteSheetStore.setActiveAnimation(animation)}
+          >
+            {animation.name}
+          </div>
+
+          <div
+            className="delete"
+            onClick={() => spriteSheetStore.removeAnimation(animation)}
+          />
+        </ListItem>
       ))}
     </div>
   );

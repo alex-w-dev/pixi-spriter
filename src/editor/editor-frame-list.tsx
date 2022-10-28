@@ -6,8 +6,8 @@ import { FrameEditor } from "./frame-editor";
 export const EditorFrameList: React.FC = observer(() => {
   return (
     <>
-      {spriteSheetStore.frames.map((frame) => (
-        <FrameEditor frame={frame} key={frame.name} />
+      {spriteSheetStore.frames.map((frame, index) => (
+        <FrameEditor frame={frame} key={index} />
       ))}
     </>
   );

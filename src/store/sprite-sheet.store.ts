@@ -1,5 +1,4 @@
 import { makeAutoObservable, runInAction, toJS } from "mobx";
-import * as PIXI from "pixi.js";
 import { debounce, throttle } from "lodash";
 import { BaseTexture, ISpritesheetData, Spritesheet } from "pixi.js";
 import { Dict } from "@pixi/utils";
@@ -13,6 +12,10 @@ export type IFrame = {
   name: string;
   w: number;
   h: number;
+  anchor: {
+    x: number;
+    y: number;
+  };
 };
 
 export type IAnimation = { name: string; frames: string[] };
@@ -33,13 +36,6 @@ export type IImage = {
 };
 
 export class SpriteSheetStore {
-  get activeFrame(): IFrame | undefined {
-    if (this.activeFrameIndex === undefined) {
-      return undefined;
-    } else {
-      return this.frames[this.activeFrameIndex];
-    }
-  }
   draggingFrame?: IFrame;
   images: IImage[] = []; // base64 images;
   allImagesInOne?: IImage;
@@ -48,7 +44,7 @@ export class SpriteSheetStore {
 
   frames: IFrame[] = [];
   animations: IAnimation[] = [];
-  activeFrameIndex?: number;
+  activeFrame?: IFrame;
   activeAnimation?: IAnimation;
 
   constructor() {
@@ -71,15 +67,29 @@ export class SpriteSheetStore {
       h: 100,
       x: 0,
       y: 0,
+      anchor: {
+        x: 50,
+        y: 50,
+      },
     };
 
     this.frames.push(frame);
     this.saveBackup();
   }
 
-  setActiveFrame(frame: IFrame): void {
-    this.activeFrameIndex = this.frames.indexOf(frame);
+  removeFrame(frame: IFrame) {
+    this.frames = this.frames.filter((f) => f !== frame);
+    this.animations.forEach(
+      (a) => (a.frames = a.frames.filter((f) => f !== frame.name))
+    );
+    if (this.activeFrame === frame) {
+      this.activeFrame = undefined;
+    }
     this.saveBackup();
+  }
+
+  setActiveFrame(frame: IFrame): void {
+    this.activeFrame = frame;
   }
 
   addNewAnimation() {
@@ -94,6 +104,13 @@ export class SpriteSheetStore {
 
   setActiveAnimation(animation: IAnimation): void {
     this.activeAnimation = animation;
+  }
+
+  removeAnimation(animation: IAnimation): void {
+    this.animations = this.animations.filter((a) => a !== animation);
+    if (this.activeAnimation === animation) {
+      this.activeAnimation = undefined;
+    }
     this.saveBackup();
   }
 
@@ -155,7 +172,6 @@ export class SpriteSheetStore {
         images: toJS(this.images),
         frames: toJS(this.frames),
         animations: toJS(this.animations),
-        activeFrameIndex: toJS(this.activeFrameIndex),
         allImagesInOne: toJS(this.allImagesInOne),
       })
     );
@@ -169,7 +185,6 @@ export class SpriteSheetStore {
       this.images = parsed.images;
       this.frames = parsed.frames || [];
       this.animations = parsed.animations || [];
-      this.activeFrameIndex = parsed.activeFrameIndex;
       this.allImagesInOne = parsed.allImagesInOne;
     }
   }
@@ -225,10 +240,11 @@ export class SpriteSheetStore {
             y: 0,
           },
           anchor: {
-            x: frame.w,
-            y: frame.h,
+            x: 0.5,
+            y: 0.5,
           },
           rotated: false,
+          trimmed: false,
         };
 
         return acc;

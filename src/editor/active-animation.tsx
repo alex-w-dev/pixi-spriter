@@ -30,24 +30,16 @@ export const ActiveAnimation: React.FC = observer(() => {
     return <EmptyContainer>No active animation</EmptyContainer>;
   }
 
-  console.log(
-    spriteSheet.animations[animation.name],
-    "spriteSheet.animations[animation.name]"
-  );
-  console.log(spriteSheet.animations, "spriteSheet.animations");
-  console.log(toJS(animation.name), "animation.name");
-  console.log(toJS(animation), "animation");
-  console.log(toJS(animation.frames), "animation.frames");
+  const textures = spriteSheet.animations[animation.name];
 
   return (
     <SelfContainer>
-      {animation.frames.length ? (
+      {animation.frames.length && textures ? (
         <Stage width={100} height={100} options={{ backgroundColor: 0xeef1f5 }}>
           <Container position={[50, 50]}>
             <AnimatedSprite
               key={Math.random()} // always reqrite
-              anchor={0.5}
-              textures={spriteSheet.animations[animation.name]}
+              textures={textures}
               isPlaying={true}
               initialFrame={0}
               animationSpeed={0.1}
