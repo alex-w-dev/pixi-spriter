@@ -15,7 +15,7 @@ export type IFrame = {
   h: number;
 };
 
-export type IAnimation = { name: string; frames: IFrame };
+export type IAnimation = { name: string; frames: string[] };
 
 interface ISpriteSheetJsonData extends ISpritesheetData {
   meta: {
@@ -49,6 +49,7 @@ export class SpriteSheetStore {
   frames: IFrame[] = [];
   animations: IAnimation[] = [];
   activeFrameIndex?: number;
+  activeAnimation?: IAnimation;
 
   constructor() {
     this.restoreDataFromLocalStorage();
@@ -78,6 +79,21 @@ export class SpriteSheetStore {
 
   setActiveFrame(frame: IFrame): void {
     this.activeFrameIndex = this.frames.indexOf(frame);
+    this.saveBackup();
+  }
+
+  addNewAnimation() {
+    const animation: IAnimation = {
+      name: "Animation" + Date.now(),
+      frames: [],
+    };
+
+    this.animations.push(animation);
+    this.saveBackup();
+  }
+
+  setActiveAnimation(animation: IAnimation): void {
+    this.activeAnimation = animation;
     this.saveBackup();
   }
 
@@ -138,6 +154,7 @@ export class SpriteSheetStore {
       JSON.stringify({
         images: toJS(this.images),
         frames: toJS(this.frames),
+        animations: toJS(this.animations),
         activeFrameIndex: toJS(this.activeFrameIndex),
         allImagesInOne: toJS(this.allImagesInOne),
       })
@@ -150,7 +167,8 @@ export class SpriteSheetStore {
       const parsed = JSON.parse(data);
 
       this.images = parsed.images;
-      this.frames = parsed.frames;
+      this.frames = parsed.frames || [];
+      this.animations = parsed.animations || [];
       this.activeFrameIndex = parsed.activeFrameIndex;
       this.allImagesInOne = parsed.allImagesInOne;
     }
@@ -190,36 +208,36 @@ export class SpriteSheetStore {
     }
 
     return toJS({
-      frames: {
-        ...this.frames.reduce((acc, frame) => {
-          acc[frame.name] = {
-            frame: {
-              x: frame.x,
-              y: frame.y,
-              w: frame.w,
-              h: frame.h,
-            },
-            sourceSize: {
-              w: frame.w,
-              h: frame.h,
-            },
-            spriteSourceSize: {
-              x: 0,
-              y: 0,
-            },
-          };
+      frames: this.frames.reduce((acc, frame) => {
+        acc[frame.name] = {
+          frame: {
+            x: frame.x,
+            y: frame.y,
+            w: frame.w,
+            h: frame.h,
+          },
+          sourceSize: {
+            w: frame.w,
+            h: frame.h,
+          },
+          spriteSourceSize: {
+            x: 0,
+            y: 0,
+          },
+        };
 
-          return acc;
-        }, {} as Dict<ISpritesheetFrameData>),
-      },
+        return acc;
+      }, {} as Dict<ISpritesheetFrameData>),
       meta: {
         image: this.allImagesInOne.src,
         size: { w: this.allImagesInOne.w, h: this.allImagesInOne.h },
         scale: "1",
       },
-      animations: {
-        enemy: this.frames.map((f) => f.name), //array of frames by name
-      },
+      animations: this.animations.reduce((acc, animation) => {
+        acc[animation.name] = animation.frames;
+
+        return acc;
+      }, {} as Dict<string[]>),
     });
   }
 }

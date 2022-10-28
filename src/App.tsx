@@ -8,6 +8,8 @@ import { AddFrameButton } from "./editor/add-frame-button";
 import { AllImagesInOne } from "./editor/all-images-in-one";
 import { EditorFrameList } from "./editor/editor-frame-list";
 import { ActiveAnimation } from "./editor/active-animation";
+import { AnimationList } from "./editor/animation-list";
+import { AddAnimationButton } from "./editor/add-animation-button";
 
 const headerHeight = "50px";
 const framesWidth = "204px";
@@ -57,6 +59,7 @@ function App() {
     <Container>
       <Header>
         <AddFrameButton />
+        <AddAnimationButton />
       </Header>
       <Content>
         <CanvasContainer>
@@ -71,7 +74,7 @@ function App() {
         </FramesContainer>
         <AnimationsContainer>
           <ActiveAnimation />
-          <FrameList />
+          <AnimationList />
         </AnimationsContainer>
       </Content>
     </Container>
