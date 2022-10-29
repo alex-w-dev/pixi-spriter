@@ -43,10 +43,11 @@ const Container = styled.div`
     margin: -9px;
     width: 16px;
     height: 16px;
-    font-size: 16px;
+    font-size: 12px;
     line-height: 16px;
-    background: rgba(255, 255, 255, 0.7);
-    font-weight: bold;
+    background: rgba(255, 255, 255, 0.4);
+    border: 0.5px solid black;
+    font-weight: 100;
   }
 
   .resizer {

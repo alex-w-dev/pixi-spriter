@@ -52,15 +52,6 @@ function stayInFrameDragged(frame: IFrame): IFrame {
   return frame;
 }
 
-function roundFrameData(frame: IFrame): IFrame {
-  frame.x = Math.round(frame.x * 10) / 10;
-  frame.y = Math.round(frame.y * 10) / 10;
-  frame.w = Math.round(frame.w * 10) / 10;
-  frame.h = Math.round(frame.h * 10) / 10;
-
-  return frame;
-}
-
 export class DraggingFrameStore {
   draggingFrame?: IFrame;
   resizingFrame?: IFrame;
@@ -71,8 +62,8 @@ export class DraggingFrameStore {
 
   constructor() {
     window.addEventListener("mousemove", (e) => {
-      const deltaX = (e.x - this.mouseX) / editorStateStore.zoom;
-      const deltaY = (e.y - this.mouseY) / editorStateStore.zoom;
+      const deltaX = Math.round((e.x - this.mouseX) / editorStateStore.zoom);
+      const deltaY = Math.round((e.y - this.mouseY) / editorStateStore.zoom);
 
       if (this.draggingFrame) {
         spriteSheetStore.updateAndSave(() => {
@@ -81,7 +72,6 @@ export class DraggingFrameStore {
             this.draggingFrame.y = this.draggingFrame.y + deltaY;
 
             stayInFrameDragged(this.draggingFrame);
-            roundFrameData(this.draggingFrame);
           }
         });
       }
@@ -112,18 +102,28 @@ export class DraggingFrameStore {
             if (this.resizeDirection === ResizeDirection.lt) {
               this.resizingFrame.w = this.resizingFrame.w - deltaX;
               this.resizingFrame.h = this.resizingFrame.h - deltaY;
+              this.resizingFrame.anchor.x =
+                this.resizingFrame.anchor.x - deltaX;
+              this.resizingFrame.anchor.y =
+                this.resizingFrame.anchor.y - deltaY;
               this.resizingFrame.x = this.resizingFrame.x + deltaX;
               this.resizingFrame.y = this.resizingFrame.y + deltaY;
             } else if (this.resizeDirection === ResizeDirection.rt) {
               this.resizingFrame.w = this.resizingFrame.w + deltaX;
               this.resizingFrame.h = this.resizingFrame.h - deltaY;
+              this.resizingFrame.anchor.y =
+                this.resizingFrame.anchor.y - deltaY;
               this.resizingFrame.y = this.resizingFrame.y + deltaY;
             } else if (this.resizeDirection === ResizeDirection.lb) {
               this.resizingFrame.w = this.resizingFrame.w - deltaX;
+              this.resizingFrame.anchor.x =
+                this.resizingFrame.anchor.x - deltaX;
               this.resizingFrame.h = this.resizingFrame.h + deltaY;
               this.resizingFrame.x = this.resizingFrame.x + deltaX;
             } else if (this.resizeDirection === ResizeDirection.l) {
               this.resizingFrame.w = this.resizingFrame.w - deltaX;
+              this.resizingFrame.anchor.x =
+                this.resizingFrame.anchor.x - deltaX;
               this.resizingFrame.x = this.resizingFrame.x + deltaX;
             } else if (this.resizeDirection === ResizeDirection.r) {
               this.resizingFrame.w = this.resizingFrame.w + deltaX;
@@ -131,6 +131,8 @@ export class DraggingFrameStore {
               this.resizingFrame.h = this.resizingFrame.h + deltaY;
             } else if (this.resizeDirection === ResizeDirection.t) {
               this.resizingFrame.h = this.resizingFrame.h - deltaY;
+              this.resizingFrame.anchor.y =
+                this.resizingFrame.anchor.y - deltaY;
               this.resizingFrame.y = this.resizingFrame.y + deltaY;
             } else {
               this.resizingFrame.w = this.resizingFrame.w + deltaX;
@@ -138,12 +140,15 @@ export class DraggingFrameStore {
             }
 
             stayInFrameResized(this.resizingFrame);
-            roundFrameData(this.resizingFrame);
           }
         });
       }
-      this.mouseX = e.x;
-      this.mouseY = e.y;
+      if (deltaX) {
+        this.mouseX = e.x;
+      }
+      if (deltaY) {
+        this.mouseY = e.y;
+      }
     });
     window.addEventListener("mouseleave", () => {
       this.resetFrames();
