@@ -14,19 +14,15 @@ export const AnimationList: React.FC = observer(() => {
             spriteSheetStore.animations.filter((a) => a.name === animation.name)
               .length > 1
           }
-        >
-          <div
-            className="title"
-            onClick={() => spriteSheetStore.setActiveAnimation(animation)}
-          >
-            {animation.name}
-          </div>
-
-          <div
-            className="delete"
-            onClick={() => spriteSheetStore.removeAnimation(animation)}
-          />
-        </ListItem>
+          onTitleClick={() => spriteSheetStore.setActiveAnimation(animation)}
+          title={animation.name}
+          onDeleteClick={() => {
+            // eslint-disable-next-line no-restricted-globals
+            if (confirm("Delete?")) {
+              spriteSheetStore.removeAnimation(animation);
+            }
+          }}
+        />
       ))}
     </div>
   );

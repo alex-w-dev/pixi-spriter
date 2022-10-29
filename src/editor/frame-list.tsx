@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from "react";
+import React from "react";
 import { observer } from "mobx-react";
 import { spriteSheetStore } from "../store/sprite-sheet.store";
 import { ListItem } from "./list-item";
@@ -14,23 +14,15 @@ export const FrameList: React.FC = observer(() => {
             spriteSheetStore.frames.filter((f) => f.name === frame.name)
               .length > 1
           }
-        >
-          <div
-            className="title"
-            onClick={() => spriteSheetStore.setActiveFrame(frame)}
-          >
-            {frame.name}
-          </div>
-          <div
-            className="delete"
-            onClick={() => {
-              // eslint-disable-next-line no-restricted-globals
-              if (confirm("Delete?")) {
-                spriteSheetStore.removeFrame(frame);
-              }
-            }}
-          />
-        </ListItem>
+          onTitleClick={() => spriteSheetStore.setActiveFrame(frame)}
+          title={frame.name}
+          onDeleteClick={() => {
+            // eslint-disable-next-line no-restricted-globals
+            if (confirm("Delete?")) {
+              spriteSheetStore.removeFrame(frame);
+            }
+          }}
+        />
       ))}
     </div>
   );

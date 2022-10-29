@@ -18,7 +18,13 @@ export type IFrame = {
   };
 };
 
-export type IAnimation = { name: string; frames: string[] };
+export type IAnimation = {
+  name: string;
+  frames: string[];
+  w: number;
+  h: number;
+  anchor: { x: number; y: number };
+};
 
 interface ISpriteSheetJsonData extends ISpritesheetData {
   meta: {
@@ -60,6 +66,40 @@ export class SpriteSheetStore {
     this.saveBackup();
   }
 
+  addFrameToAnimation(animation: IAnimation, frameName: string) {
+    animation.frames.push(frameName);
+    this.updateAnimationParameters(animation);
+
+    this.updatePixiSpriteSheet();
+    this.saveBackup();
+  }
+
+  updateAnimationParameters(animation: IAnimation) {
+    const animationFrames = this.frames.filter((f) =>
+      animation.frames.includes(f.name)
+    );
+
+    if (animationFrames.length) {
+      const maxAnchorLeft = Math.max(...animationFrames.map((f) => f.anchor.x));
+      const maxAnchorRight = Math.max(
+        ...animationFrames.map((f) => f.w - f.anchor.x)
+      );
+      const maxAnchorTop = Math.max(...animationFrames.map((f) => f.anchor.y));
+      const maxAnchorBottom = Math.max(
+        ...animationFrames.map((f) => f.h - f.anchor.y)
+      );
+      animation.anchor.y = maxAnchorTop;
+      animation.anchor.x = maxAnchorLeft;
+      animation.w = maxAnchorRight + maxAnchorLeft;
+      animation.h = maxAnchorTop + maxAnchorBottom;
+    } else {
+      animation.anchor.y = 0;
+      animation.anchor.x = 0;
+      animation.w = 0;
+      animation.h = 0;
+    }
+  }
+
   addNewFrame() {
     const frame: IFrame = {
       name: "Sprite" + Date.now(),
@@ -77,6 +117,14 @@ export class SpriteSheetStore {
     this.saveBackup();
   }
 
+  removeFrameFromAnimation(animation: IAnimation, frameName: string) {
+    animation.frames = animation.frames.filter((f) => f !== frameName);
+    this.updateAnimationParameters(animation);
+
+    this.updatePixiSpriteSheet();
+    this.saveBackup();
+  }
+
   removeFrame(frame: IFrame) {
     this.frames = this.frames.filter((f) => f !== frame);
     this.animations.forEach(
@@ -88,7 +136,7 @@ export class SpriteSheetStore {
     this.saveBackup();
   }
 
-  setActiveFrame(frame: IFrame): void {
+  setActiveFrame(frame?: IFrame): void {
     this.activeFrame = frame;
   }
 
@@ -96,6 +144,9 @@ export class SpriteSheetStore {
     const animation: IAnimation = {
       name: "Animation" + Date.now(),
       frames: [],
+      anchor: { x: 0, y: 0 },
+      h: 0,
+      w: 0,
     };
 
     this.animations.push(animation);
@@ -223,25 +274,12 @@ export class SpriteSheetStore {
       };
     }
 
-    const maxAnchorLeft = Math.max(...this.frames.map((f) => f.anchor.x));
-    const maxAnchorRight = Math.max(
-      ...this.frames.map((f) => f.w - f.anchor.x)
-    );
-    const maxAnchorTop = Math.max(...this.frames.map((f) => f.anchor.y));
-    const maxAnchorBottom = Math.max(
-      ...this.frames.map((f) => f.h - f.anchor.y)
-    );
-    const sourceWidth = maxAnchorRight + maxAnchorLeft;
-    const sourceHeight = maxAnchorTop + maxAnchorBottom;
-    console.log(maxAnchorLeft, "maxAnchorLeft");
-    console.log(maxAnchorRight, "maxAnchorRight");
-    console.log(maxAnchorTop, "maxAnchorTop");
-    console.log(maxAnchorBottom, "maxAnchorBottom");
-    console.log(sourceHeight, "sourceHeight");
-    console.log(sourceWidth, "sourceWidth");
-
     return toJS({
       frames: this.frames.reduce((acc, frame) => {
+        const myAnimation = this.animations.find((a) =>
+          a.frames.includes(frame.name)
+        );
+
         acc[frame.name] = {
           frame: {
             x: frame.x,
@@ -249,21 +287,30 @@ export class SpriteSheetStore {
             w: frame.w,
             h: frame.h,
           },
-          sourceSize: {
-            w: sourceWidth,
-            h: sourceHeight,
-          },
-          spriteSourceSize: {
-            x: maxAnchorLeft - frame.anchor.x,
-            y: maxAnchorTop - frame.anchor.y,
-          },
-          anchor: {
-            x: maxAnchorLeft / sourceWidth,
-            y: maxAnchorTop / sourceHeight,
-          },
           rotated: false,
           trimmed: true,
         };
+
+        if (myAnimation) {
+          acc[frame.name].anchor = {
+            x: myAnimation.anchor.x / myAnimation.w,
+            y: myAnimation.anchor.y / myAnimation.h,
+          };
+          acc[frame.name].sourceSize = {
+            w: myAnimation.w,
+            h: myAnimation.h,
+          };
+          acc[frame.name].spriteSourceSize = {
+            x: myAnimation.anchor.x - frame.anchor.x,
+            y: myAnimation.anchor.y - frame.anchor.y,
+          };
+          acc[frame.name].trimmed = true;
+        } else {
+          acc[frame.name].anchor = {
+            x: frame.anchor.x,
+            y: frame.anchor.y,
+          };
+        }
 
         return acc;
       }, {} as Dict<ISpritesheetFrameData>),

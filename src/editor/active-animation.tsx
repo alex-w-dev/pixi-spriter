@@ -5,6 +5,8 @@ import styled from "styled-components";
 import { Stage } from "@inlet/react-pixi";
 import { AnimatedSprite, Container } from "@inlet/react-pixi/animated";
 import { AddFrameToAnimation } from "./add-frame-to-animation";
+import { ListItem } from "./list-item";
+import { InZoom } from "./in-zoom";
 
 const EmptyContainer = styled.div`
   padding: 10px;
@@ -34,19 +36,25 @@ export const ActiveAnimation: React.FC = observer(() => {
 
   return (
     <SelfContainer>
-      {animation.frames.length && textures ? (
-        <Stage width={100} height={100} options={{ backgroundColor: 0xeef1f5 }}>
-          <Container position={[50, 50]}>
-            <AnimatedSprite
-              key={Math.random()} // always reqrite
-              textures={textures}
-              updateAnchor={true}
-              isPlaying={true}
-              initialFrame={0}
-              animationSpeed={0.08}
-            />
-          </Container>
-        </Stage>
+      {animation.frames.length && textures?.length ? (
+        <InZoom width={animation.w}>
+          <Stage
+            width={animation.w}
+            height={animation.h}
+            options={{ backgroundColor: 0xeef1f5 }}
+          >
+            <Container position={[animation.anchor.x, animation.anchor.y]}>
+              <AnimatedSprite
+                key={Math.random()} // always reqrite
+                textures={textures}
+                updateAnchor={true}
+                isPlaying={true}
+                initialFrame={0}
+                animationSpeed={0.08}
+              />
+            </Container>
+          </Stage>
+        </InZoom>
       ) : (
         <EmptyContainer>No frames in animation</EmptyContainer>
       )}
@@ -64,7 +72,20 @@ export const ActiveAnimation: React.FC = observer(() => {
       </div>
       <div>
         {animation.frames.map((frame) => (
-          <div key={frame}>{frame}</div>
+          <ListItem
+            error={false}
+            active={frame === spriteSheetStore.activeFrame?.name}
+            title={frame}
+            onTitleClick={() =>
+              spriteSheetStore.setActiveFrame(
+                spriteSheetStore.frames.find((f) => f.name === frame)
+              )
+            }
+            onDeleteClick={() =>
+              spriteSheetStore.removeFrameFromAnimation(animation, frame)
+            }
+            key={frame}
+          />
         ))}
       </div>
       <div>

@@ -26,9 +26,7 @@ export const AddFrameToAnimation: React.FC<{ animation: IAnimation }> =
           type="button"
           value={"Add Frame"}
           onClick={() => {
-            spriteSheetStore.updateAndSave(() => {
-              animation.frames.push(selectedFrame);
-            });
+            spriteSheetStore.addFrameToAnimation(animation, selectedFrame);
           }}
         />
       </div>
