@@ -3,6 +3,7 @@ import { debounce, throttle } from "lodash";
 import { BaseTexture, ISpritesheetData, Rectangle, Spritesheet } from "pixi.js";
 import { Dict } from "@pixi/utils";
 import { ISpritesheetFrameData } from "@pixi/spritesheet";
+import { detectPngRectangles } from "../utils/detect-png-rectangles";
 
 const localStorageKey = "pixiSpriterData";
 
@@ -54,7 +55,7 @@ export class SpriteSheetStore {
   activeAnimation?: IAnimation;
 
   constructor() {
-    this.restoreDataFromLocalStorage();
+    // this.restoreDataFromLocalStorage();
     this.updatePixiSpriteSheet();
 
     makeAutoObservable(this);
@@ -100,8 +101,8 @@ export class SpriteSheetStore {
     }
   }
 
-  addNewFrame() {
-    const frame: IFrame = {
+  addNewFrame(frame?: IFrame) {
+    frame = frame || {
       name: "Sprite" + Date.now(),
       w: 100,
       h: 100,
@@ -173,10 +174,32 @@ export class SpriteSheetStore {
   }
 
   addImage(image: IImage) {
+    const framesYStart = this.images.reduce((acc, i) => acc + i.h, 0);
     this.images.push(image);
+
+    this.generateNewFrames(image).then((d) => {
+      console.log(d, "d");
+      d.forEach((rect, index) => {
+        this.addNewFrame({
+          x: rect.x,
+          y: rect.y + framesYStart,
+          w: rect.w,
+          h: rect.h,
+          name: image.name.replace(".png", `-${index}.png`),
+          anchor: {
+            x: Math.round(rect.w / 2),
+            y: Math.round(rect.h / 2),
+          },
+        });
+      });
+    });
     this.updateAllImagesInOne();
     this.saveBackup();
     this.updatePixiSpriteSheet();
+  }
+
+  async generateNewFrames(image: IImage) {
+    return detectPngRectangles(image.src);
   }
 
   async updateAllImagesInOne() {

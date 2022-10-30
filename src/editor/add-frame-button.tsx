@@ -9,7 +9,7 @@ export const AddFrameButton: React.FC = observer(() => {
         disabled={!spriteSheetStore.allImagesInOne}
         type="button"
         value={"Add Frame"}
-        onClick={spriteSheetStore.addNewFrame.bind(spriteSheetStore)}
+        onClick={spriteSheetStore.addNewFrame.bind(spriteSheetStore, undefined)}
       />
     </div>
   );
