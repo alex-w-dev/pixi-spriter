@@ -30,6 +30,10 @@ export const ActiveAnimation: React.FC = observer(() => {
   if (!spriteSheet || !animation || !spriteSheetStore.allImagesInOne) {
     return <EmptyContainer>No active animation</EmptyContainer>;
   }
+  console.log(
+    spriteSheetStore.activeAnimation,
+    "spriteSheetStore.activeAnimation"
+  );
 
   const textures = spriteSheet.animations[animation.name];
   console.log(textures, "textures");
@@ -66,6 +70,29 @@ export const ActiveAnimation: React.FC = observer(() => {
           onChange={(e) =>
             spriteSheetStore.updateAndSave(() => {
               animation.name = e.target.value;
+            })
+          }
+        />
+      </div>
+      <div>
+        <input
+          type="button"
+          value={`Rename frames to ${animation.name} with indexes`}
+          onClick={(e) =>
+            spriteSheetStore.updateAndSave(() => {
+              const oldFrames = animation.frames;
+              animation.frames = animation.frames.map(
+                (fName, index) =>
+                  `${animation.name.replace(".png", ``)}-${index + 1}.png`
+              );
+              oldFrames.forEach((frameName, index) => {
+                const frame = spriteSheetStore.frames.find(
+                  (f) => f.name === frameName
+                );
+                if (frame) {
+                  frame.name = animation.frames[index];
+                }
+              });
             })
           }
         />

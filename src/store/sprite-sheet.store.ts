@@ -50,6 +50,25 @@ export class SpriteSheetStore {
   spriteSheet?: Spritesheet;
 
   frames: IFrame[] = [];
+
+  get sortedFrames(): (IFrame & {
+    active: boolean;
+    error: boolean;
+    inAnimation: boolean;
+  })[] {
+    return [...this.frames]
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .map((frame) => {
+        return {
+          ...frame,
+          error: this.frames.filter((f) => f.name === frame.name).length > 1,
+          active: frame.name === this.activeFrame?.name,
+          inAnimation: this.animations.some((a) =>
+            a.frames.includes(frame.name)
+          ),
+        };
+      });
+  }
   animations: IAnimation[] = [];
   activeFrame?: IFrame;
   activeAnimation?: IAnimation;
@@ -66,6 +85,10 @@ export class SpriteSheetStore {
     this.updatePixiSpriteSheet();
     this.updateAllAnimationsParameters();
     this.saveBackup();
+  }
+
+  getFrameByName(frameName?: string): IFrame | undefined {
+    return this.frames.find((f) => f.name === frameName);
   }
 
   addFrameToAnimation(animation: IAnimation, frameName: string) {
@@ -156,12 +179,14 @@ export class SpriteSheetStore {
       h: 0,
       w: 0,
     };
-
     this.animations.push(animation);
+    this.setActiveAnimation(
+      this.animations.find((a) => a.name === animation.name)
+    );
     this.saveBackup();
   }
 
-  setActiveAnimation(animation: IAnimation): void {
+  setActiveAnimation(animation?: IAnimation): void {
     this.activeAnimation = animation;
   }
 

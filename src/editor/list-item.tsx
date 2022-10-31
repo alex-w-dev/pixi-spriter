@@ -1,11 +1,16 @@
 import styled from "styled-components";
 import React from "react";
 
-export const Container = styled.div<{ active: boolean; error: boolean }>`
+export const Container = styled.div<{
+  active: boolean;
+  error: boolean;
+  selected?: boolean;
+}>`
   border: 1px solid
     ${(props) => (props.error ? "red" : props.active ? "blue" : "white")};
   display: flex;
   align-items: center;
+  background-color: ${(props) => (props.selected ? "#d3edff" : "transparent")};
 
   .title {
     flex-grow: 1;
@@ -26,9 +31,10 @@ export const ListItem: React.FC<{
   onTitleClick: () => void;
   active: boolean;
   error: boolean;
-}> = ({ onTitleClick, onDeleteClick, active, error, title }) => {
+  selected?: boolean;
+}> = ({ onTitleClick, onDeleteClick, active, error, title, selected }) => {
   return (
-    <Container active={active} error={error}>
+    <Container active={active} error={error} selected={selected}>
       <div className="title" onClick={onTitleClick}>
         {title}
       </div>

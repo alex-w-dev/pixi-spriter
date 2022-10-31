@@ -67,9 +67,9 @@ function App() {
           {/*<ImageList />*/}
           <ActiveZoom>
             <AllImagesInOne />
-            <InputImage />
             <EditorFrameList />
           </ActiveZoom>
+          <InputImage />
         </CanvasContainer>
         <FramesContainer>
           <ActiveFrame />

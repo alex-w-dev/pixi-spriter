@@ -146,6 +146,29 @@ export const FrameEditor: React.FC<{ frame: IFrame }> = observer(
   ({ frame }) => {
     return (
       <Container
+        onKeyDown={(e) => {
+          if (e.key === "Delete") {
+            if (spriteSheetStore.activeFrame) {
+              console.log(1, "1");
+              spriteSheetStore.removeFrame(spriteSheetStore.activeFrame);
+            }
+          }
+          if (e.key === "a") {
+            if (
+              spriteSheetStore.activeFrame &&
+              spriteSheetStore.activeAnimation &&
+              spriteSheetStore.activeAnimation.frames.every(
+                (fName) => fName !== spriteSheetStore.activeFrame?.name
+              )
+            ) {
+              console.log(2, "2");
+              spriteSheetStore.addFrameToAnimation(
+                spriteSheetStore.activeAnimation,
+                spriteSheetStore.activeFrame.name
+              );
+            }
+          }
+        }}
         onMouseDown={(e) => {
           const classList = (e.target as HTMLDivElement).classList;
 
