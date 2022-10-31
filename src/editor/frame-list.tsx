@@ -2,27 +2,24 @@ import React from "react";
 import { observer } from "mobx-react";
 import { spriteSheetStore } from "../store/sprite-sheet.store";
 import { ListItem } from "./list-item";
+import { onFrameKeydown } from "../utils/on-frame-keydown";
 
 export const FrameList: React.FC = observer(() => {
   return (
     <div className="frame-list">
-      {spriteSheetStore.sortedFrames.map((frame, index) => (
+      {spriteSheetStore.sortedFrames.map((frameData, index) => (
         <ListItem
           key={index}
-          active={frame.active}
-          error={frame.error}
-          selected={frame.inAnimation}
-          onTitleClick={() =>
-            spriteSheetStore.setActiveFrame(
-              spriteSheetStore.getFrameByName(frame.name)
-            )
-          }
-          title={frame.name}
+          active={frameData.active}
+          error={frameData.error}
+          selected={frameData.inAnimation}
+          onTitleClick={() => spriteSheetStore.setActiveFrame(frameData.frame)}
+          onKeyDown={onFrameKeydown}
+          title={frameData.frame.name}
           onDeleteClick={() => {
             // eslint-disable-next-line no-restricted-globals
             if (confirm("Delete?")) {
-              const f = spriteSheetStore.getFrameByName(frame.name);
-              f && spriteSheetStore.removeFrame(f);
+              spriteSheetStore.removeFrame(frameData.frame);
             }
           }}
         />

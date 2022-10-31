@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import React from "react";
+import React, { KeyboardEventHandler } from "react";
 
 export const Container = styled.div<{
   active: boolean;
@@ -11,6 +11,7 @@ export const Container = styled.div<{
   display: flex;
   align-items: center;
   background-color: ${(props) => (props.selected ? "#d3edff" : "transparent")};
+  outline: none;
 
   .title {
     flex-grow: 1;
@@ -31,10 +32,25 @@ export const ListItem: React.FC<{
   onTitleClick: () => void;
   active: boolean;
   error: boolean;
+  onKeyDown?: KeyboardEventHandler<HTMLDivElement>;
   selected?: boolean;
-}> = ({ onTitleClick, onDeleteClick, active, error, title, selected }) => {
+}> = ({
+  onTitleClick,
+  onDeleteClick,
+  active,
+  error,
+  title,
+  selected,
+  onKeyDown,
+}) => {
   return (
-    <Container active={active} error={error} selected={selected}>
+    <Container
+      active={active}
+      error={error}
+      selected={selected}
+      onKeyDown={onKeyDown}
+      tabIndex={1}
+    >
       <div className="title" onClick={onTitleClick}>
         {title}
       </div>

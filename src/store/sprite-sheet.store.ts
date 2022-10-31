@@ -51,23 +51,24 @@ export class SpriteSheetStore {
 
   frames: IFrame[] = [];
 
-  get sortedFrames(): (IFrame & {
+  get sortedFrames(): {
     active: boolean;
     error: boolean;
     inAnimation: boolean;
-  })[] {
-    return [...this.frames]
-      .sort((a, b) => a.name.localeCompare(b.name))
+    frame: IFrame;
+  }[] {
+    return this.frames
       .map((frame) => {
         return {
-          ...frame,
+          frame,
           error: this.frames.filter((f) => f.name === frame.name).length > 1,
           active: frame.name === this.activeFrame?.name,
           inAnimation: this.animations.some((a) =>
             a.frames.includes(frame.name)
           ),
         };
-      });
+      })
+      .sort((a, b) => a.frame.name.localeCompare(b.frame.name));
   }
   animations: IAnimation[] = [];
   activeFrame?: IFrame;
@@ -155,12 +156,18 @@ export class SpriteSheetStore {
   }
 
   removeFrame(frame: IFrame) {
+    const sortedFrameIndex = this.sortedFrames.indexOf(
+      this.sortedFrames.find((sf) => sf.frame === frame)!
+    );
     this.frames = this.frames.filter((f) => f !== frame);
     this.animations.forEach(
       (a) => (a.frames = a.frames.filter((f) => f !== frame.name))
     );
     if (this.activeFrame === frame) {
-      this.activeFrame = undefined;
+      this.activeFrame =
+        this.sortedFrames[sortedFrameIndex]?.frame ||
+        this.sortedFrames[sortedFrameIndex - 1]?.frame;
+      console.log(this.activeFrame, "this.activeFrame");
     }
 
     this.updateAllAnimationsParameters();

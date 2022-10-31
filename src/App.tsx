@@ -11,6 +11,7 @@ import { ActiveAnimation } from "./editor/active-animation";
 import { AnimationList } from "./editor/animation-list";
 import { AddAnimationButton } from "./editor/add-animation-button";
 import { ActiveZoom } from "./editor/active-zoom";
+import { ImageList } from "./editor/image-list";
 
 const headerHeight = "50px";
 const framesWidth = "204px";
@@ -64,11 +65,11 @@ function App() {
       </Header>
       <Content>
         <CanvasContainer>
-          {/*<ImageList />*/}
           <ActiveZoom>
             <AllImagesInOne />
             <EditorFrameList />
           </ActiveZoom>
+          <ImageList />
           <InputImage />
         </CanvasContainer>
         <FramesContainer>
