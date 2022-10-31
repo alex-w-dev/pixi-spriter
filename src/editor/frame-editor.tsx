@@ -11,7 +11,18 @@ const Container = styled.div`
   position: absolute;
   cursor: all-scroll;
   opacity: 0.5;
-  border: 1px solid gray;
+  // border: 1px solid gray;
+
+  &:before {
+    content: "";
+    top: -1px;
+    left: -1px;
+    position: absolute;
+    z-index: -1;
+    width: calc(100%);
+    height: calc(100%);
+    border: 1px dashed #000;
+  }
 
   &.active {
     opacity: 1;

@@ -55,7 +55,7 @@ export class SpriteSheetStore {
   activeAnimation?: IAnimation;
 
   constructor() {
-    // this.restoreDataFromLocalStorage();
+    this.restoreDataFromLocalStorage();
     this.updatePixiSpriteSheet();
 
     makeAutoObservable(this);
@@ -64,6 +64,7 @@ export class SpriteSheetStore {
   updateAndSave(cb: () => void) {
     cb();
     this.updatePixiSpriteSheet();
+    this.updateAllAnimationsParameters();
     this.saveBackup();
   }
 
@@ -73,6 +74,10 @@ export class SpriteSheetStore {
 
     this.updatePixiSpriteSheet();
     this.saveBackup();
+  }
+
+  updateAllAnimationsParameters() {
+    this.animations.forEach((a) => this.updateAnimationParameters(a));
   }
 
   updateAnimationParameters(animation: IAnimation) {
@@ -134,6 +139,8 @@ export class SpriteSheetStore {
     if (this.activeFrame === frame) {
       this.activeFrame = undefined;
     }
+
+    this.updateAllAnimationsParameters();
     this.saveBackup();
   }
 
@@ -185,7 +192,7 @@ export class SpriteSheetStore {
           y: rect.y + framesYStart,
           w: rect.w,
           h: rect.h,
-          name: image.name.replace(".png", `-${index}.png`),
+          name: image.name.replace(".png", `-${index + 1}.png`),
           anchor: {
             x: Math.round(rect.w / 2),
             y: Math.round(rect.h / 2),
