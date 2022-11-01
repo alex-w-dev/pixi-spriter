@@ -7,6 +7,7 @@ import { AnimatedSprite, Container } from "@inlet/react-pixi/animated";
 import { AddFrameToAnimation } from "./add-frame-to-animation";
 import { ListItem } from "./list-item";
 import { InZoom } from "./in-zoom";
+import { SortableList } from "../support/sortable-list";
 
 const EmptyContainer = styled.div`
   padding: 10px;
@@ -98,22 +99,34 @@ export const ActiveAnimation: React.FC = observer(() => {
         />
       </div>
       <div>
-        {animation.frames.map((frame) => (
-          <ListItem
-            error={false}
-            active={frame === spriteSheetStore.activeFrame?.name}
-            title={frame}
-            onTitleClick={() =>
-              spriteSheetStore.setActiveFrame(
-                spriteSheetStore.frames.find((f) => f.name === frame)
-              )
-            }
-            onDeleteClick={() =>
-              spriteSheetStore.removeFrameFromAnimation(animation, frame)
-            }
-            key={frame}
-          />
-        ))}
+        <SortableList
+          items={animation.frames.map((frame, index) => {
+            return {
+              item: frame,
+              id: frame + index,
+              content: (
+                <ListItem
+                  error={false}
+                  active={frame === spriteSheetStore.activeFrame?.name}
+                  title={frame}
+                  onTitleClick={() =>
+                    spriteSheetStore.setActiveFrame(
+                      spriteSheetStore.frames.find((f) => f.name === frame)
+                    )
+                  }
+                  onDeleteClick={() =>
+                    spriteSheetStore.removeFrameFromAnimation(animation, frame)
+                  }
+                />
+              ),
+            };
+          })}
+          onDragEnd={(sortedItems) => {
+            spriteSheetStore.updateAndSave(() => {
+              animation.frames = sortedItems.map((item) => item.item);
+            });
+          }}
+        />
       </div>
       <div>
         <AddFrameToAnimation animation={animation} />
