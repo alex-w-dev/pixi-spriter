@@ -2,7 +2,7 @@ import React, { useRef } from "react";
 import { observer } from "mobx-react";
 import { spriteSheetStore } from "../store/sprite-sheet.store";
 import styled from "styled-components";
-import { InZoom } from "./in-zoom";
+import { InZoom } from "../support/in-zoom";
 
 const EmptyContainer = styled.div`
   padding: 10px;

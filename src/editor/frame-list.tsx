@@ -1,7 +1,7 @@
 import React from "react";
 import { observer } from "mobx-react";
 import { spriteSheetStore } from "../store/sprite-sheet.store";
-import { ListItem } from "./list-item";
+import { ListItem } from "../support/list-item";
 import { onFrameKeydown } from "../utils/on-frame-keydown";
 
 export const FrameList: React.FC = observer(() => {

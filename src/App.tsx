@@ -10,7 +10,7 @@ import { EditorFrameList } from "./editor/editor-frame-list";
 import { ActiveAnimation } from "./editor/active-animation";
 import { AnimationList } from "./editor/animation-list";
 import { AddAnimationButton } from "./editor/add-animation-button";
-import { ActiveZoom } from "./editor/active-zoom";
+import { ActiveZoom } from "./support/active-zoom";
 import { ImageList } from "./editor/image-list";
 
 const headerHeight = "50px";

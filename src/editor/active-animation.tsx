@@ -5,8 +5,8 @@ import styled from "styled-components";
 import { Stage } from "@inlet/react-pixi";
 import { AnimatedSprite, Container } from "@inlet/react-pixi/animated";
 import { AddFrameToAnimation } from "./add-frame-to-animation";
-import { ListItem } from "./list-item";
-import { InZoom } from "./in-zoom";
+import { ListItem } from "../support/list-item";
+import { InZoom } from "../support/in-zoom";
 import { SortableList } from "../support/sortable-list";
 
 const EmptyContainer = styled.div`
