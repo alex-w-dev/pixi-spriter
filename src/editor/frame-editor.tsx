@@ -12,6 +12,7 @@ const Container = styled.div`
   position: absolute;
   cursor: all-scroll;
   opacity: 0.5;
+  outline: none;
   // border: 1px solid gray;
 
   &:before {
@@ -147,6 +148,7 @@ export const FrameEditor: React.FC<{ frame: IFrame }> = observer(
   ({ frame }) => {
     return (
       <Container
+        tabIndex={1}
         onKeyDown={onFrameKeydown}
         onMouseDown={(e) => {
           const classList = (e.target as HTMLDivElement).classList;
