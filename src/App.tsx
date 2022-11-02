@@ -12,6 +12,7 @@ import { AnimationList } from "./editor/animation-list";
 import { AddAnimationButton } from "./editor/add-animation-button";
 import { ActiveZoom } from "./support/active-zoom";
 import { ImageList } from "./editor/image-list";
+import { ExportSpriteSheetButton } from "./editor/export-sprite-sheet-button";
 
 const headerHeight = "50px";
 const framesWidth = "204px";
@@ -62,6 +63,7 @@ function App() {
       <Header>
         <AddFrameButton />
         <AddAnimationButton />
+        <ExportSpriteSheetButton />
       </Header>
       <Content>
         <CanvasContainer>

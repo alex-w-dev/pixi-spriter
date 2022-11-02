@@ -36,6 +36,7 @@ interface ISpriteSheetJsonData extends ISpritesheetData {
 }
 
 export type IImage = {
+  img: HTMLImageElement;
   src: string;
   name: string;
   w: number;
@@ -77,6 +78,7 @@ export class SpriteSheetStore {
   constructor() {
     this.restoreDataFromLocalStorage();
     this.updatePixiSpriteSheet();
+    this.updateAllImagesInOne();
 
     makeAutoObservable(this);
   }
@@ -217,7 +219,6 @@ export class SpriteSheetStore {
     this.images.push(image);
 
     this.generateNewFrames(image).then((d) => {
-      console.log(d, "d");
       d.forEach((rect, index) => {
         this.addNewFrame({
           x: rect.x,
@@ -266,16 +267,22 @@ export class SpriteSheetStore {
       })
     );
 
-    runInAction(() => {
-      this.allImagesInOne = {
-        src: c.toDataURL("image/png"),
-        w: canvasWidth,
-        h: canvasHeight,
-        name: "all-in-one.png",
-      };
-      this.saveBackup();
-      this.updatePixiSpriteSheet();
-    });
+    const src = c.toDataURL("image/png");
+    const img = new Image();
+    img.src = src;
+    img.onload = () => {
+      runInAction(() => {
+        this.allImagesInOne = {
+          img,
+          src,
+          w: canvasWidth,
+          h: canvasHeight,
+          name: "all-in-one.png",
+        };
+        this.saveBackup();
+        this.updatePixiSpriteSheet();
+      });
+    };
   }
 
   saveBackup = throttle(() => {
@@ -285,7 +292,6 @@ export class SpriteSheetStore {
         images: toJS(this.images),
         frames: toJS(this.frames),
         animations: toJS(this.animations),
-        allImagesInOne: toJS(this.allImagesInOne),
       })
     );
   }, 1000);
@@ -298,7 +304,6 @@ export class SpriteSheetStore {
       this.images = parsed.images;
       this.frames = parsed.frames || [];
       this.animations = parsed.animations || [];
-      this.allImagesInOne = parsed.allImagesInOne;
     }
   }
 
@@ -328,9 +333,10 @@ export class SpriteSheetStore {
     if (!this.allImagesInOne) {
       return {
         meta: {
-          image: "none",
+          image:
+            "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAAtJREFUGFdjYAACAAAFAAGq1chRAAAAAElFTkSuQmCC",
           scale: "1",
-          size: { w: 0, h: 0 },
+          size: { w: 1, h: 1 },
         },
         frames: {},
       };
@@ -355,8 +361,8 @@ export class SpriteSheetStore {
 
         if (myAnimation) {
           acc[frame.name].anchor = {
-            x: myAnimation.anchor.x / myAnimation.w,
-            y: myAnimation.anchor.y / myAnimation.h,
+            x: Math.round((myAnimation.anchor.x / myAnimation.w) * 1000) / 1000,
+            y: Math.round((myAnimation.anchor.y / myAnimation.h) * 1000) / 1000,
           };
           acc[frame.name].sourceSize = {
             w: myAnimation.w,
