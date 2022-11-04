@@ -2,9 +2,17 @@ import { IFrame, spriteSheetStore } from "../store/sprite-sheet.store";
 import merger from "texture-merger";
 import { downloadBlob } from "./download-blob";
 
+let exported = false;
+
 export async function exportSpriteSheet() {
   if (!spriteSheetStore.allImagesInOne) {
     return;
+  }
+
+  if (exported) {
+    return alert("This is bug, please reload page, and then try export again");
+  } else {
+    exported = true;
   }
 
   const canvas = document.createElement("canvas");
@@ -32,6 +40,7 @@ export async function exportSpriteSheet() {
     );
 
   console.log(sprites.length, "sprites");
+  console.log(sprites, "sprites");
 
   /*  const frame = spriteSheetStore.frames[0];
 
@@ -81,12 +90,16 @@ export async function exportSpriteSheet() {
     frameData.frame.x = neeFramePosition.x;
     frameData.frame.y = neeFramePosition.y;
   });
+  const imageName = spriteSheetStore.currentProject.name + ".png";
+  spriteSheetJson.meta.image = imageName;
 
-  downloadBlob(mergedOne!.blob, "sprite-sheet" + ".png");
-  var myblob = new Blob([JSON.stringify(spriteSheetJson, null, 2)], {
+  console.log(imageName, "imageName");
+
+  downloadBlob(mergedOne!.blob, imageName);
+  var jsonBlob = new Blob([JSON.stringify(spriteSheetJson, null, 2)], {
     type: "text/plain",
   });
-  downloadBlob(myblob, "sprite-sheet" + ".json");
+  downloadBlob(jsonBlob, spriteSheetStore.currentProject.name + ".json");
 
   // merged.map((m) => {
   //   downloadBlob(m.blob, m.key + ".png");

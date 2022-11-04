@@ -42,9 +42,25 @@ export type IImage = {
   w: number;
   h: number;
 };
+export type IProject = {
+  id: number;
+  name: string;
+};
 
 export class SpriteSheetStore {
-  draggingFrame?: IFrame;
+  currentProjectIndex = 0;
+  projects: IProject[] = [
+    {
+      name: "Untitled",
+      id: Date.now(),
+    },
+  ];
+  get currentProject(): IProject {
+    return this.projects[this.currentProjectIndex];
+  }
+  get currentProjectStorageKey(): string {
+    return localStorageKey + "/" + this.currentProject.id;
+  }
   images: IImage[] = []; // base64 images;
   allImagesInOne?: IImage;
 
@@ -76,18 +92,20 @@ export class SpriteSheetStore {
   activeAnimation?: IAnimation;
 
   constructor() {
-    this.restoreDataFromLocalStorage();
-    this.updatePixiSpriteSheet();
-    this.updateAllImagesInOne();
-
+    this.reInit();
     makeAutoObservable(this);
+  }
+
+  reInit() {
+    this.restoreProjectsFromLocalStorage();
+    this.restoreCurrentProjectDataFromLocalStorage();
   }
 
   updateAndSave(cb: () => void) {
     cb();
     this.updatePixiSpriteSheet();
     this.updateAllAnimationsParameters();
-    this.saveBackup();
+    this.saveCurrentProjectBackup();
   }
 
   getFrameByName(frameName?: string): IFrame | undefined {
@@ -99,7 +117,7 @@ export class SpriteSheetStore {
     this.updateAnimationParameters(animation);
 
     this.updatePixiSpriteSheet();
-    this.saveBackup();
+    this.saveCurrentProjectBackup();
   }
 
   updateAllAnimationsParameters() {
@@ -146,7 +164,7 @@ export class SpriteSheetStore {
     };
 
     this.frames.push(frame);
-    this.saveBackup();
+    this.saveCurrentProjectBackup();
   }
 
   removeFrameFromAnimation(animation: IAnimation, frameName: string) {
@@ -154,7 +172,7 @@ export class SpriteSheetStore {
     this.updateAnimationParameters(animation);
 
     this.updatePixiSpriteSheet();
-    this.saveBackup();
+    this.saveCurrentProjectBackup();
   }
 
   removeFrame(frame: IFrame) {
@@ -173,7 +191,7 @@ export class SpriteSheetStore {
     }
 
     this.updateAllAnimationsParameters();
-    this.saveBackup();
+    this.saveCurrentProjectBackup();
   }
 
   setActiveFrame(frame?: IFrame): void {
@@ -192,7 +210,7 @@ export class SpriteSheetStore {
     this.setActiveAnimation(
       this.animations.find((a) => a.name === animation.name)
     );
-    this.saveBackup();
+    this.saveCurrentProjectBackup();
   }
 
   setActiveAnimation(animation?: IAnimation): void {
@@ -204,13 +222,13 @@ export class SpriteSheetStore {
     if (this.activeAnimation === animation) {
       this.activeAnimation = undefined;
     }
-    this.saveBackup();
+    this.saveCurrentProjectBackup();
   }
 
   removeImage(image: IImage) {
     this.images = this.images.filter((img) => img !== image);
     this.updateAllImagesInOne();
-    this.saveBackup();
+    this.saveCurrentProjectBackup();
     this.updatePixiSpriteSheet();
   }
 
@@ -234,12 +252,33 @@ export class SpriteSheetStore {
       });
     });
     this.updateAllImagesInOne();
-    this.saveBackup();
+    this.saveCurrentProjectBackup();
     this.updatePixiSpriteSheet();
   }
 
   async generateNewFrames(image: IImage) {
     return detectPngRectangles(image.src);
+  }
+
+  addNewProject() {
+    this.currentProjectIndex =
+      this.projects.push({ name: "Untitled", id: Date.now() }) - 1;
+    this.saveProjectsBackup();
+    this.restoreCurrentProjectDataFromLocalStorage();
+  }
+
+  selectProject(projectId: IProject["id"]) {
+    this.currentProjectIndex = this.projects.indexOf(
+      this.projects.find((p) => p.id === projectId)!
+    );
+    this.saveProjectsBackup();
+    this.restoreCurrentProjectDataFromLocalStorage();
+  }
+
+  changeCurrentProjectName(name: string) {
+    this.currentProject.name = name;
+    this.saveProjectsBackup();
+    this.restoreCurrentProjectDataFromLocalStorage();
   }
 
   async updateAllImagesInOne() {
@@ -279,15 +318,15 @@ export class SpriteSheetStore {
           h: canvasHeight,
           name: "all-in-one.png",
         };
-        this.saveBackup();
+        this.saveCurrentProjectBackup();
         this.updatePixiSpriteSheet();
       });
     };
   }
 
-  saveBackup = throttle(() => {
+  saveCurrentProjectBackup = throttle(() => {
     localStorage.setItem(
-      localStorageKey,
+      this.currentProjectStorageKey,
       JSON.stringify({
         images: toJS(this.images),
         frames: toJS(this.frames),
@@ -296,22 +335,47 @@ export class SpriteSheetStore {
     );
   }, 1000);
 
-  restoreDataFromLocalStorage(): void {
-    const data = localStorage.getItem(localStorageKey);
-    if (data) {
-      const parsed = JSON.parse(data);
+  saveProjectsBackup = throttle(() => {
+    localStorage.setItem(
+      localStorageKey,
+      JSON.stringify({
+        projects: toJS(this.projects),
+        currentProject: toJS(this.currentProjectIndex),
+      })
+    );
+  }, 1000);
 
-      this.images = parsed.images;
-      this.frames = parsed.frames || [];
-      this.animations = parsed.animations || [];
-    }
+  restoreProjectsFromLocalStorage(): void {
+    const data = localStorage.getItem(localStorageKey);
+    const parsed = data && JSON.parse(data);
+
+    console.log(parsed, "parsed");
+
+    this.projects = parsed?.projects || this.projects;
+    this.currentProjectIndex =
+      parsed?.currentProject || this.currentProjectIndex;
+  }
+
+  restoreCurrentProjectDataFromLocalStorage(): void {
+    this.activeFrame = undefined;
+    this.activeAnimation = undefined;
+    this.allImagesInOne = undefined;
+    this.spriteSheet = undefined;
+    const data = localStorage.getItem(this.currentProjectStorageKey);
+    const parsed = data && JSON.parse(data);
+
+    this.images = parsed?.images || [];
+    this.frames = parsed?.frames || [];
+    this.animations = parsed?.animations || [];
+
+    this.updatePixiSpriteSheet();
+    this.updateAllImagesInOne();
   }
 
   lastI = 0;
   updatePixiSpriteSheet = debounce(() => {
     const pixiSpriteSheetJsonData =
       spriteSheetStore.getPixiSpriteSheetJsonData();
-    console.log(pixiSpriteSheetJsonData, "pixiSpriteSheetJsonData");
 
     const spriteSheet = new Spritesheet(
       BaseTexture.from(pixiSpriteSheetJsonData.meta.image),

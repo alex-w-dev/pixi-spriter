@@ -12,7 +12,10 @@ import { AnimationList } from "./editor/animation-list";
 import { AddAnimationButton } from "./editor/add-animation-button";
 import { ActiveZoom } from "./support/active-zoom";
 import { ImageList } from "./editor/image-list";
-import { ExportSpriteSheetButton } from "./editor/export-sprite-sheet-button";
+import { ExportSpriteSheetButton } from "./editor/project/export-sprite-sheet-button";
+import { ProjectNameInput } from "./editor/project/project-name-input";
+import { ProjectsSelect } from "./editor/project/projects-select";
+import { CreateNewProjectButton } from "./editor/project/create-new-project-button";
 
 const headerHeight = "50px";
 const framesWidth = "204px";
@@ -30,7 +33,9 @@ const Header = styled.div`
   top: 0;
   height: ${headerHeight};
   display: flex;
+  flex-direction: column;
   align-items: center;
+  width: 100%;
 `;
 const Content = styled.div`
   position: absolute;
@@ -56,14 +61,51 @@ const AnimationsContainer = styled.div`
   width: ${framesWidth};
   overflow: auto;
 `;
+const HeaderTop = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+`;
+const HeaderDown = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: 100%;
+`;
+const Flex = styled.div`
+  display: flex;
+`;
+const Hr = styled.hr`
+  margin: 3px;
+  height: 1px;
+  padding: 0;
+  background-color: aliceblue;
+`;
 
 function App() {
   return (
     <Container>
       <Header>
-        <AddFrameButton />
-        <AddAnimationButton />
-        <ExportSpriteSheetButton />
+        <HeaderTop>
+          <Flex>
+            <CreateNewProjectButton />
+            ...
+            <label>
+              <span>Chosen one:</span>
+              <ProjectsSelect />
+            </label>
+          </Flex>
+          <Flex>
+            <ProjectNameInput />
+            <ExportSpriteSheetButton />
+          </Flex>
+        </HeaderTop>
+        <Hr />
+        <HeaderDown>
+          <AddFrameButton />
+          <AddAnimationButton />
+        </HeaderDown>
       </Header>
       <Content>
         <CanvasContainer>
