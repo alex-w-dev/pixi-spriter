@@ -17,8 +17,8 @@ import { ProjectNameInput } from "./editor/project/project-name-input";
 import { ProjectsSelect } from "./editor/project/projects-select";
 import { CreateNewProjectButton } from "./editor/project/create-new-project-button";
 
-const headerHeight = "50px";
-const framesWidth = "204px";
+const headerHeight = "60px";
+const framesWidth = "260px";
 
 const Container = styled.div`
   width: 100vw;
@@ -36,6 +36,7 @@ const Header = styled.div`
   flex-direction: column;
   align-items: center;
   width: 100%;
+  border-bottom: 1px solid black;
 `;
 const Content = styled.div`
   position: absolute;
@@ -53,11 +54,13 @@ const CanvasContainer = styled.div`
 `;
 const FramesContainer = styled.div`
   height: 100%;
+  padding: 6px;
   width: ${framesWidth};
   overflow: auto;
 `;
 const AnimationsContainer = styled.div`
   height: 100%;
+  padding: 6px;
   width: ${framesWidth};
   overflow: auto;
 `;

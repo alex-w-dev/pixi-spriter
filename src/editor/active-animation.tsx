@@ -99,34 +99,41 @@ export const ActiveAnimation: React.FC = observer(() => {
         />
       </div>
       <div>
-        <SortableList
-          items={animation.frames.map((frame, index) => {
-            return {
-              item: frame,
-              id: frame + index,
-              content: (
-                <ListItem
-                  error={false}
-                  active={frame === spriteSheetStore.activeFrame?.name}
-                  title={frame}
-                  onTitleClick={() =>
-                    spriteSheetStore.setActiveFrame(
-                      spriteSheetStore.frames.find((f) => f.name === frame)
-                    )
-                  }
-                  onDeleteClick={() =>
-                    spriteSheetStore.removeFrameFromAnimation(animation, frame)
-                  }
-                />
-              ),
-            };
-          })}
-          onDragEnd={(sortedItems) => {
-            spriteSheetStore.updateAndSave(() => {
-              animation.frames = sortedItems.map((item) => item.item);
-            });
-          }}
-        />
+        {animation.frames.length ? (
+          <SortableList
+            items={animation.frames.map((frame, index) => {
+              return {
+                item: frame,
+                id: frame + index,
+                content: (
+                  <ListItem
+                    error={false}
+                    active={frame === spriteSheetStore.activeFrame?.name}
+                    title={frame}
+                    onTitleClick={() =>
+                      spriteSheetStore.setActiveFrame(
+                        spriteSheetStore.frames.find((f) => f.name === frame)
+                      )
+                    }
+                    onDeleteClick={() =>
+                      spriteSheetStore.removeFrameFromAnimation(
+                        animation,
+                        frame
+                      )
+                    }
+                  />
+                ),
+              };
+            })}
+            onDragEnd={(sortedItems) => {
+              spriteSheetStore.updateAndSave(() => {
+                animation.frames = sortedItems.map((item) => item.item);
+              });
+            }}
+          />
+        ) : (
+          <div>No Frames in Animation</div>
+        )}
       </div>
       <div>
         <AddFrameToAnimation animation={animation} />

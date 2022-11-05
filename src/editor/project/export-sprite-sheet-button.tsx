@@ -7,7 +7,9 @@ export const ExportSpriteSheetButton: React.FC = observer(() => {
   return (
     <div>
       <input
-        disabled={!spriteSheetStore.allImagesInOne}
+        disabled={
+          !spriteSheetStore.allImagesInOne || !spriteSheetStore.frames.length
+        }
         type="button"
         value={"Export sprite sheet"}
         onClick={exportSpriteSheet}
