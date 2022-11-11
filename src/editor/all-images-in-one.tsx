@@ -8,7 +8,13 @@ export const AllImagesInOne: React.FC = observer(() => {
     return <div>no images yet</div>;
   }
 
-  return <img src={spriteSheetStore.allImagesInOne?.src} alt="" />;
+  return (
+    <img
+      src={spriteSheetStore.allImagesInOne?.src}
+      style={{ backgroundColor: "#d9d9d9" }}
+      alt=""
+    />
+  );
 
   // const stageHeight = spriteSheetStore.images.reduce(
   //   (h, image) => (h += image.h),
