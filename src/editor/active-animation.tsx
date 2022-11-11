@@ -86,14 +86,16 @@ export const ActiveAnimation: React.FC = observer(() => {
                 (fName, index) =>
                   `${animation.name.replace(".png", ``)}-${index + 1}.png`
               );
-              oldFrames.forEach((frameName, index) => {
-                const frame = spriteSheetStore.frames.find(
-                  (f) => f.name === frameName
-                );
-                if (frame) {
-                  frame.name = animation.frames[index];
-                }
-              });
+              oldFrames
+                .map((frameName, index) => {
+                  return spriteSheetStore.frames.find(
+                    (f) => f.name === frameName
+                  );
+                })
+                .filter((frame) => !!frame)
+                .forEach((frame, index) => {
+                  frame!.name = animation.frames[index];
+                });
             })
           }
         />

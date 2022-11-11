@@ -54,13 +54,32 @@ const Container = styled.div`
     align-items: center;
     justify-content: center;
     margin: -9px;
-    width: 16px;
-    height: 16px;
+    width: 17px;
+    height: 17px;
     font-size: 12px;
-    line-height: 16px;
+    line-height: 17px;
     background: rgba(255, 255, 255, 0.4);
     border: 0.5px solid black;
     font-weight: 100;
+
+    :before,
+    :after {
+      display: block;
+      content: "";
+      position: absolute;
+      left: 8px;
+      top: 8px;
+      width: 1px;
+      margin-top: -40px;
+      height: 80px;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+    :after {
+      height: 1px;
+      margin-top: 0;
+      margin-left: -40px;
+      width: 80px;
+    }
   }
 
   .resizer {
@@ -186,7 +205,7 @@ export const FrameEditor: React.FC<{ frame: IFrame }> = observer(
           className="anchor"
           style={{ left: `${frame.anchor.x}px`, top: `${frame.anchor.y}px` }}
         >
-          ✛
+          {/*✛*/}
         </div>
       </Container>
     );
