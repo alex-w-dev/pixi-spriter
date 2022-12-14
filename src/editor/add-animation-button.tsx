@@ -9,7 +9,7 @@ export const AddAnimationButton: React.FC = observer(() => {
         disabled={!spriteSheetStore.allImagesInOne}
         type="button"
         value={"Add Animation"}
-        onClick={spriteSheetStore.addNewAnimation.bind(spriteSheetStore)}
+        onClick={() => spriteSheetStore.addNewAnimation()}
       />
     </div>
   );

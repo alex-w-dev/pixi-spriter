@@ -203,8 +203,8 @@ export class SpriteSheetStore {
     this.activeFrame = frame;
   }
 
-  addNewAnimation() {
-    const animation: IAnimation = {
+  addNewAnimation(animation?: IAnimation) {
+    animation = animation || {
       name: "Animation" + Date.now(),
       frames: [],
       anchor: { x: 0, y: 0 },
@@ -213,7 +213,7 @@ export class SpriteSheetStore {
     };
     this.animations.push(animation);
     this.setActiveAnimation(
-      this.animations.find((a) => a.name === animation.name)
+      this.animations.find((a) => a.name === animation!.name)
     );
     this.saveCurrentProjectBackup();
   }
@@ -255,6 +255,13 @@ export class SpriteSheetStore {
           },
         });
       });
+    });
+    this.addNewAnimation({
+      name: image.name.replace(".png", ``),
+      frames: [],
+      anchor: { x: 0, y: 0 },
+      h: 0,
+      w: 0,
     });
     this.updateAllImagesInOne();
     this.saveCurrentProjectBackup();
