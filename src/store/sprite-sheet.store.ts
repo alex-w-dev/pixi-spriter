@@ -85,7 +85,12 @@ export class SpriteSheetStore {
           ),
         };
       })
-      .sort((a, b) => a.frame.name.localeCompare(b.frame.name));
+      .sort((a, b) =>
+        a.frame.name.localeCompare(b.frame.name, undefined, {
+          numeric: true,
+          sensitivity: "base",
+        })
+      );
   }
   animations: IAnimation[] = [];
   activeFrame?: IFrame;
