@@ -16,6 +16,8 @@ import { ExportSpriteSheetButton } from "./editor/project/export-sprite-sheet-bu
 import { ProjectNameInput } from "./editor/project/project-name-input";
 import { ProjectsSelect } from "./editor/project/projects-select";
 import { CreateNewProjectButton } from "./editor/project/create-new-project-button";
+import { PopupProvider } from "./store/popup.store";
+import { InputGifButton } from "./editor/input-gif/input-gif-button";
 
 const headerHeight = "60px";
 const framesWidth = "260px";
@@ -118,6 +120,7 @@ function App() {
           </ActiveZoom>
           <ImageList />
           <InputImage />
+          <InputGifButton />
         </CanvasContainer>
         <FramesContainer>
           <ActiveFrame />
@@ -128,6 +131,7 @@ function App() {
           <AnimationList />
         </AnimationsContainer>
       </Content>
+      <PopupProvider />
     </Container>
   );
 }
