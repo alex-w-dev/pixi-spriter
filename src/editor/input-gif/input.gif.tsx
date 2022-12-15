@@ -1,6 +1,7 @@
 import React, { ChangeEvent, useRef, useState } from "react";
 import { spriteSheetStore } from "../../store/sprite-sheet.store";
 import styled from "styled-components";
+import { GIF } from "../../utils/gif";
 
 const GifEditorContainer = styled.div`
   position: relative;
@@ -40,7 +41,12 @@ const GifEditorCross = styled.div`
   }
 `;
 
-function onImport(src: string, anchorX: number, anchorY: number) {}
+function onImport(src: string, anchorX: number, anchorY: number) {
+  var myGif = GIF();
+  myGif.load(src);
+  /** @link https://stackoverflow.com/questions/48234696/how-to-put-a-gif-with-canvas */
+  myGif.onload = console.log as any;
+}
 
 function GifEditor({ src }: { src: string }) {
   const [down, setDown] = useState(false);
@@ -120,6 +126,10 @@ export function InputGif() {
     fileReader.readAsDataURL(file);
   }
 
+  function onInputChange(e: ChangeEvent<HTMLInputElement>) {
+    setSrc(e.target.value);
+  }
+
   return (
     <div>
       {src ? (
@@ -128,7 +138,7 @@ export function InputGif() {
           <hr />
         </>
       ) : null}
-
+      <input type="text" value={src} onChange={onInputChange} />
       <input type="file" accept=".gif" onChange={onFileChange} />
     </div>
   );
