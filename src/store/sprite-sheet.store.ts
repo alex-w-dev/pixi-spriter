@@ -4,6 +4,7 @@ import { BaseTexture, ISpritesheetData, Rectangle, Spritesheet } from "pixi.js";
 import { Dict } from "@pixi/utils";
 import { ISpritesheetFrameData } from "@pixi/spritesheet";
 import { detectPngRectangles } from "../utils/detect-png-rectangles";
+import { canvasToImg } from "../utils/canvas-to-img";
 
 const localStorageKey = "pixiSpriterData";
 
@@ -203,17 +204,20 @@ export class SpriteSheetStore {
     this.activeFrame = frame;
   }
 
-  addNewAnimation(animation?: IAnimation) {
-    animation = animation || {
-      name: "Animation" + Date.now(),
-      frames: [],
-      anchor: { x: 0, y: 0 },
-      h: 0,
-      w: 0,
-    };
-    this.animations.push(animation);
+  addNewAnimation(animation?: Partial<IAnimation>) {
+    const preparedAnimation = Object.assign(
+      {
+        name: "Animation" + Date.now(),
+        frames: [],
+        anchor: { x: 0, y: 0 },
+        h: 0,
+        w: 0,
+      },
+      animation || {}
+    );
+    this.animations.push(preparedAnimation);
     this.setActiveAnimation(
-      this.animations.find((a) => a.name === animation!.name)
+      this.animations.find((a) => a.name === preparedAnimation.name)
     );
     this.saveCurrentProjectBackup();
   }
@@ -237,32 +241,35 @@ export class SpriteSheetStore {
     this.updatePixiSpriteSheet();
   }
 
-  addImage(image: IImage) {
+  addImage(image: IImage, options: { parsePng?: boolean } = {}) {
     const framesYStart = this.images.reduce((acc, i) => acc + i.h, 0);
     this.images.push(image);
 
-    this.generateNewFrames(image).then((d) => {
-      d.forEach((rect, index) => {
-        this.addNewFrame({
-          x: rect.x,
-          y: rect.y + framesYStart,
-          w: rect.w,
-          h: rect.h,
-          name: image.name.replace(".png", `-${index + 1}.png`),
-          anchor: {
-            x: Math.round(rect.w / 2),
-            y: Math.round(rect.h / 2),
-          },
+    if (options.parsePng) {
+      this.generateNewFrames(image).then((d) => {
+        d.forEach((rect, index) => {
+          this.addNewFrame({
+            x: rect.x,
+            y: rect.y + framesYStart,
+            w: rect.w,
+            h: rect.h,
+            name: image.name.replace(".png", `-${index + 1}.png`),
+            anchor: {
+              x: Math.round(rect.w / 2),
+              y: Math.round(rect.h / 2),
+            },
+          });
         });
       });
-    });
-    this.addNewAnimation({
-      name: image.name.replace(".png", ``),
-      frames: [],
-      anchor: { x: 0, y: 0 },
-      h: 0,
-      w: 0,
-    });
+      this.addNewAnimation({
+        name: image.name.replace(".png", ``),
+        frames: [],
+        anchor: { x: 0, y: 0 },
+        h: 0,
+        w: 0,
+      });
+    }
+
     this.updateAllImagesInOne();
     this.saveCurrentProjectBackup();
     this.updatePixiSpriteSheet();
@@ -318,22 +325,18 @@ export class SpriteSheetStore {
       })
     );
 
-    const src = c.toDataURL("image/png");
-    const img = new Image();
-    img.src = src;
-    img.onload = () => {
-      runInAction(() => {
-        this.allImagesInOne = {
-          img,
-          src,
-          w: canvasWidth,
-          h: canvasHeight,
-          name: "all-in-one.png",
-        };
-        this.saveCurrentProjectBackup();
-        this.updatePixiSpriteSheet();
-      });
-    };
+    const img = await canvasToImg(c);
+    runInAction(() => {
+      this.allImagesInOne = {
+        img,
+        src: img.src,
+        w: canvasWidth,
+        h: canvasHeight,
+        name: "all-in-one.png",
+      };
+      this.saveCurrentProjectBackup();
+      this.updatePixiSpriteSheet();
+    });
   }
 
   saveCurrentProjectBackup = throttle(() => {

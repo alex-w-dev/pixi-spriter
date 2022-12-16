@@ -13,13 +13,18 @@ function onFileChange(e: ChangeEvent<HTMLInputElement>) {
 
       img.src = src;
       img.onload = () => {
-        spriteSheetStore.addImage({
-          img: img,
-          name: file.name,
-          src,
-          h: img.naturalHeight,
-          w: img.naturalWidth,
-        });
+        spriteSheetStore.addImage(
+          {
+            img: img,
+            name: file.name,
+            src,
+            h: img.naturalHeight,
+            w: img.naturalWidth,
+          },
+          {
+            parsePng: true,
+          }
+        );
       };
     });
 
