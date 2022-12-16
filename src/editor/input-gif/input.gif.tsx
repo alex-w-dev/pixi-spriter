@@ -36,9 +36,9 @@ function onImport(
         const excludeColorsArray = excludeColors.trim().split(",");
 
         for (const hash of excludeColorsArray) {
-          const searchR = parseInt(hash.substring(0, 1), 16);
-          const searchG = parseInt(hash.substring(2, 3), 16);
-          const searchB = parseInt(hash.substring(4, 5), 16);
+          const searchR = parseInt(hash.substring(0, 2), 16);
+          const searchG = parseInt(hash.substring(2, 4), 16);
+          const searchB = parseInt(hash.substring(4, 6), 16);
           const imgd = ctx.getImageData(0, 0, width, height);
           const pix = imgd.data;
           const newColor = { r: 0, g: 0, b: 0, a: 0 };
@@ -50,7 +50,6 @@ function onImport(
 
             // If its white then change it
             if (r === searchR && g === searchG && b === searchB) {
-              // Change the white to whatever.
               pix[i] = newColor.r;
               pix[i + 1] = newColor.g;
               pix[i + 2] = newColor.b;
