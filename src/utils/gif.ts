@@ -209,7 +209,7 @@ export const GIF = function () {
     var deinterlace, frame, bitField;
     deinterlace = function (width) {
       // de interlace pixel data if needed
-      var lines, fromLine, pass, toline;
+      var lines, fromLine, pass;
       lines = pixelBufSize / width;
       fromLine = 0;
       if (interlacedBufSize !== pixelBufSize) {
@@ -268,7 +268,7 @@ export const GIF = function () {
   }
   function processFrame(frame) {
     // creates a RGBA canvas image from the indexed pixel data.
-    var ct, cData, dat, pixCount, ind, useT, i, pixel, pDat, col, frame, ti;
+    var ct, cData, dat, pixCount, ind, useT, i, pixel, pDat, col, ti;
     frame.image = document.createElement("canvas");
     frame.image.width = gif.width;
     frame.image.height = gif.height;

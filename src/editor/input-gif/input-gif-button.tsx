@@ -7,7 +7,7 @@ export function InputGifButton() {
       <input
         type="button"
         value="Gif Loader"
-        onClick={() => PopupStore.open(<InputGif />)}
+        onClick={() => alert("not ready") /*PopupStore.open(<InputGif />)*/}
       />
     </>
   );
