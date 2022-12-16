@@ -25,11 +25,13 @@ function stayInFrameResized(frame: IFrame): IFrame {
   if (frame.h < 0) {
     frame.h = 0;
   }
-  if (frame.x + frame.w > spriteSheetStore.allImagesInOne!.w) {
-    frame.w = spriteSheetStore.allImagesInOne!.w - frame.x;
-  }
-  if (frame.y + frame.h > spriteSheetStore.allImagesInOne!.h) {
-    frame.h = spriteSheetStore.allImagesInOne!.h - frame.y;
+  if (spriteSheetStore.frames.includes(frame)) {
+    if (frame.x + frame.w > spriteSheetStore.allImagesInOne!.w) {
+      frame.w = spriteSheetStore.allImagesInOne!.w - frame.x;
+    }
+    if (frame.y + frame.h > spriteSheetStore.allImagesInOne!.h) {
+      frame.h = spriteSheetStore.allImagesInOne!.h - frame.y;
+    }
   }
 
   return frame;
@@ -42,11 +44,13 @@ function stayInFrameDragged(frame: IFrame): IFrame {
   if (frame.y < 0) {
     frame.y = 0;
   }
-  if (frame.x + frame.w > spriteSheetStore.allImagesInOne!.w) {
-    frame.x = spriteSheetStore.allImagesInOne!.w - frame.w;
-  }
-  if (frame.y + frame.h > spriteSheetStore.allImagesInOne!.h) {
-    frame.y = spriteSheetStore.allImagesInOne!.h - frame.h;
+  if (spriteSheetStore.frames.includes(frame)) {
+    if (frame.x + frame.w > spriteSheetStore.allImagesInOne!.w) {
+      frame.x = spriteSheetStore.allImagesInOne!.w - frame.w;
+    }
+    if (frame.y + frame.h > spriteSheetStore.allImagesInOne!.h) {
+      frame.y = spriteSheetStore.allImagesInOne!.h - frame.h;
+    }
   }
 
   return frame;
@@ -78,7 +82,6 @@ export class DraggingFrameStore {
       if (this.anchoringFrame) {
         spriteSheetStore.updateAndSave(() => {
           if (this.anchoringFrame) {
-            console.log(777, "777");
             this.anchoringFrame.anchor.x = Math.max(
               0,
               Math.min(

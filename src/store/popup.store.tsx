@@ -31,7 +31,7 @@ const PopupContainer = styled.div`
   display: flex;
   flex-direction: column;
   position: absolute;
-  top: 25vh;
+  top: 0;
   left: 25vw;
   background-color: white;
   width: 50vw;

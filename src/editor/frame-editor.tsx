@@ -8,7 +8,7 @@ import {
 } from "../store/dragging-frame.store";
 import { onFrameKeydown } from "../utils/on-frame-keydown";
 
-const Container = styled.div`
+export const EditorContainer = styled.div`
   position: absolute;
   cursor: all-scroll;
   opacity: 0.5;
@@ -165,13 +165,15 @@ function startAnchoringFrame(frame: IFrame) {
 
 export const FrameEditor: React.FC<{ frame: IFrame }> = observer(
   ({ frame }) => {
+    console.log(frame, "frame");
     return (
-      <Container
+      <EditorContainer
         tabIndex={1}
         onKeyDown={onFrameKeydown}
         onMouseDown={(e) => {
           const classList = (e.target as HTMLDivElement).classList;
 
+          console.log(111, "111");
           if (classList.contains("resizer")) {
             console.log(Array.from(classList), "Array.from(classList)");
             startResizingFrame(
@@ -179,6 +181,7 @@ export const FrameEditor: React.FC<{ frame: IFrame }> = observer(
               Array.from(classList)[classList.length - 1] as ResizeDirection
             );
           } else if (classList.contains("anchor")) {
+            console.log(77, "77");
             startAnchoringFrame(frame);
           } else {
             startDraggingFrame(frame);
@@ -207,7 +210,7 @@ export const FrameEditor: React.FC<{ frame: IFrame }> = observer(
         >
           {/*✛*/}
         </div>
-      </Container>
+      </EditorContainer>
     );
   }
 );
