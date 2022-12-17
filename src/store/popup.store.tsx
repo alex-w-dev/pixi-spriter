@@ -32,13 +32,14 @@ const PopupContainer = styled.div`
   flex-direction: column;
   position: absolute;
   top: 0;
-  left: 25vw;
+  left: 0;
   background-color: white;
-  width: 50vw;
-  height: 50vh;
+  width: 100vw;
+  height: 100vh;
 `;
 const PopupContent = styled.div`
   width: 100%;
+  overflow: auto;
   display: flex;
   align-items: center;
   justify-content: center;

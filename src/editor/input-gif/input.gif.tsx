@@ -5,6 +5,7 @@ import { GIF } from "../../utils/gif";
 import { FrameEditor } from "../frame-editor";
 import { makeAutoObservable, runInAction, toJS } from "mobx";
 import { canvasToImg } from "../../utils/canvas-to-img";
+import { ActiveFrame } from "../active-frame";
 
 const GifEditorContainer = styled.div`
   position: relative;
@@ -14,7 +15,8 @@ function onImport(
   src: string,
   fileName: string,
   frame: IFrame,
-  excludeColors: string
+  excludeColors: string,
+  pixelScale = 1
 ) {
   var myGif = GIF();
   myGif.load(src);
@@ -23,8 +25,8 @@ function onImport(
     console.log(result.path[0], "result.path[0]");
     const { frames, frameCount, width, height } = result.path[0];
     const resultCanvas = document.createElement("canvas");
-    resultCanvas.width = width * frameCount;
-    resultCanvas.height = height;
+    resultCanvas.width = (width * frameCount) / pixelScale;
+    resultCanvas.height = height / pixelScale;
     const resultCtx2D = resultCanvas.getContext("2d")!;
     const resultFrames: IFrame[] = [];
 
@@ -61,13 +63,25 @@ function onImport(
         }
       }
 
-      const imgd = ctx.getImageData(0, 0, width, height);
-      const offsetX = frames.indexOf(frame1) * width;
+      const conedCanvas = cloneCanvas(canvas, pixelScale);
+      const clonedCtx = conedCanvas.getContext("2d")!;
+      const resultImageData = clonedCtx.getImageData(
+        0,
+        0,
+        conedCanvas.width,
+        conedCanvas.height
+      );
+      const offsetX = frames.indexOf(frame1) * conedCanvas.width;
       const offsetY = spriteSheetStore.allImagesInOne?.h || 0;
-      resultCtx2D.putImageData(imgd, offsetX, 0);
+      resultCtx2D.putImageData(resultImageData, offsetX, 0);
+
       const resultFrame = toJS(frame);
-      resultFrame.x = resultFrame.x + offsetX;
-      resultFrame.y = resultFrame.y + offsetY;
+      resultFrame.x = resultFrame.x / pixelScale + offsetX;
+      resultFrame.y = resultFrame.y / pixelScale + offsetY;
+      resultFrame.h = resultFrame.h / pixelScale;
+      resultFrame.w = resultFrame.w / pixelScale;
+      resultFrame.anchor.x = Math.floor(resultFrame.anchor.x / pixelScale);
+      resultFrame.anchor.y = Math.floor(resultFrame.anchor.y / pixelScale);
       resultFrame.name =
         fileName.replace(".gif", "") + "-" + (frames.indexOf(frame1) + 1);
       resultFrames.push(resultFrame);
@@ -100,24 +114,26 @@ function onImport(
 function GifEditor({ src, fileName }: { src: string; fileName: string }) {
   const imageRef = useRef<HTMLImageElement>(null);
   const [excludeColor, setExcludeColor] = useState("FFFFFF");
+  const [pixelScale, setPixelScale] = useState(1);
   const [frame] = useState(
     makeAutoObservable<IFrame>({
-      x: 0,
-      w: 10,
-      name: "",
-      h: 10,
-      y: 0,
+      x: 10,
+      w: 50,
+      name: "Input Gif",
+      h: 50,
+      y: 10,
       anchor: {
-        x: 5,
-        y: 5,
+        x: 25,
+        y: 25,
       },
     })
   );
 
   return (
     <GifEditorContainer>
-      <div>
+      <div style={{ display: "flex" }}>
         <img src={src} alt="" ref={imageRef} />
+        <ActiveFrame />
       </div>
       <FrameEditor frame={frame} />
       <div>
@@ -128,10 +144,19 @@ function GifEditor({ src, fileName }: { src: string; fileName: string }) {
           onChange={(e) => setExcludeColor(e.target.value)}
         />
       </div>
+      <div>
+        Pixel Scale:{" "}
+        <input
+          type="number"
+          step="1"
+          value={pixelScale}
+          onChange={(e) => setPixelScale(Number(e.target.value) || 1)}
+        />
+      </div>
       <input
         type="button"
         value="Import!"
-        onClick={() => onImport(src, fileName, frame, excludeColor)}
+        onClick={() => onImport(src, fileName, frame, excludeColor, pixelScale)}
       />
     </GifEditorContainer>
   );
@@ -171,4 +196,33 @@ export function InputGif() {
       <input type="file" accept=".gif" onChange={onFileChange} />
     </div>
   );
+}
+
+function cloneCanvas(
+  oldCanvas: HTMLCanvasElement,
+  pixelScale = 1
+): HTMLCanvasElement {
+  //create a new canvas
+  var newCanvas = document.createElement("canvas");
+  var context = newCanvas.getContext("2d")!;
+
+  //set dimensions
+  newCanvas.width = oldCanvas.width / pixelScale;
+  newCanvas.height = oldCanvas.height / pixelScale;
+
+  //apply the old canvas to the new one
+  context.drawImage(
+    oldCanvas,
+    0,
+    0,
+    oldCanvas.width,
+    oldCanvas.height,
+    0,
+    0,
+    newCanvas.width,
+    newCanvas.height
+  );
+
+  //return the new canvas
+  return newCanvas;
 }
