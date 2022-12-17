@@ -47,6 +47,19 @@ export type IProject = {
   id: number;
   name: string;
 };
+export type IProjectBackupData = {
+  images?: IImage[];
+  animations?: IAnimation[];
+  frames?: IFrame[];
+};
+export type IProjectListBackupData = {
+  projects?: IProject[];
+  currentProjectIndex?: number;
+};
+export type IAllJsonBackup = Record<
+  string,
+  IProjectBackupData | IProjectListBackupData
+>;
 
 export class SpriteSheetStore {
   currentProjectIndex = 0;
@@ -60,7 +73,7 @@ export class SpriteSheetStore {
     return this.projects[this.currentProjectIndex];
   }
   get currentProjectStorageKey(): string {
-    return localStorageKey + "/" + this.currentProject.id;
+    return this.getProjectStorageKey(this.currentProject);
   }
   images: IImage[] = []; // base64 images;
   allImagesInOne?: IImage;
@@ -100,6 +113,10 @@ export class SpriteSheetStore {
   constructor() {
     this.reInit();
     makeAutoObservable(this);
+  }
+
+  getProjectStorageKey(project: IProject): string {
+    return localStorageKey + "/" + project.id;
   }
 
   reInit() {
@@ -353,22 +370,48 @@ export class SpriteSheetStore {
   saveProjectsBackup = throttle(() => {
     localStorage.setItem(
       localStorageKey,
-      JSON.stringify({
-        projects: toJS(this.projects),
-        currentProject: toJS(this.currentProjectIndex),
-      })
+      JSON.stringify(this.gwtProjectListJsonBackup())
     );
   }, 1000);
 
-  restoreProjectsFromLocalStorage(): void {
+  gwtProjectListJsonBackup(): IProjectListBackupData {
     const data = localStorage.getItem(localStorageKey);
-    const parsed = data && JSON.parse(data);
 
-    console.log(parsed, "parsed");
+    return data && JSON.parse(data);
+  }
+
+  getProjectJsonBackup(project: IProject): IProjectBackupData {
+    const data = localStorage.getItem(this.getProjectStorageKey(project));
+
+    return data && JSON.parse(data);
+  }
+
+  getAllJsonBackup(): IAllJsonBackup {
+    const _return = {} as IAllJsonBackup;
+
+    _return[localStorageKey] = this.gwtProjectListJsonBackup();
+
+    this.projects.forEach((project) => {
+      _return[this.getProjectStorageKey(project)] =
+        this.getProjectJsonBackup(project);
+    });
+
+    return _return;
+  }
+
+  setAllJsonBackup(backup: IAllJsonBackup): void {
+    Object.entries(backup).forEach(([key, data]) => {
+      localStorage.setItem(key, JSON.stringify(data));
+    });
+    this.reInit();
+  }
+
+  restoreProjectsFromLocalStorage(): void {
+    const parsed = this.gwtProjectListJsonBackup();
 
     this.projects = parsed?.projects || this.projects;
     this.currentProjectIndex =
-      parsed?.currentProject || this.currentProjectIndex;
+      parsed?.currentProjectIndex || this.currentProjectIndex;
   }
 
   restoreCurrentProjectDataFromLocalStorage(): void {
@@ -376,8 +419,8 @@ export class SpriteSheetStore {
     this.activeAnimation = undefined;
     this.allImagesInOne = undefined;
     this.spriteSheet = undefined;
-    const data = localStorage.getItem(this.currentProjectStorageKey);
-    const parsed = data && JSON.parse(data);
+
+    const parsed = this.getProjectJsonBackup(this.currentProject);
 
     this.images = parsed?.images || [];
     this.frames = parsed?.frames || [];
