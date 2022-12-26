@@ -370,7 +370,10 @@ export class SpriteSheetStore {
   saveProjectsBackup = throttle(() => {
     localStorage.setItem(
       localStorageKey,
-      JSON.stringify(this.gwtProjectListJsonBackup())
+      JSON.stringify({
+        projects: toJS(this.projects),
+        currentProjectIndex: toJS(this.currentProjectIndex),
+      } as IProjectListBackupData)
     );
   }, 1000);
 
