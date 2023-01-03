@@ -1,10 +1,11 @@
 import { makeAutoObservable, runInAction, toJS } from "mobx";
-import { debounce, throttle } from "lodash";
+import { assignIn, debounce, throttle } from "lodash";
 import { BaseTexture, ISpritesheetData, Rectangle, Spritesheet } from "pixi.js";
 import { Dict } from "@pixi/utils";
 import { ISpritesheetFrameData } from "@pixi/spritesheet";
 import { detectPngRectangles } from "../utils/detect-png-rectangles";
 import { canvasToImg } from "../utils/canvas-to-img";
+import * as localForage from "localforage";
 
 const localStorageKey = "pixiSpriterData";
 
@@ -357,7 +358,7 @@ export class SpriteSheetStore {
   }
 
   saveCurrentProjectBackup = throttle(() => {
-    localStorage.setItem(
+    localForage.setItem(
       this.currentProjectStorageKey,
       JSON.stringify({
         images: toJS(this.images),
@@ -368,7 +369,7 @@ export class SpriteSheetStore {
   }, 1000);
 
   saveProjectsBackup = throttle(() => {
-    localStorage.setItem(
+    localForage.setItem(
       localStorageKey,
       JSON.stringify({
         projects: toJS(this.projects),
@@ -377,53 +378,56 @@ export class SpriteSheetStore {
     );
   }, 1000);
 
-  gwtProjectListJsonBackup(): IProjectListBackupData {
-    const data = localStorage.getItem(localStorageKey);
+  async gwtProjectListJsonBackup(): Promise<IProjectListBackupData> {
+    const data = await localForage.getItem<string>(localStorageKey);
 
     return data && JSON.parse(data);
   }
 
-  getProjectJsonBackup(project: IProject): IProjectBackupData {
-    const data = localStorage.getItem(this.getProjectStorageKey(project));
+  async getProjectJsonBackup(project: IProject): Promise<IProjectBackupData> {
+    const data = await localForage.getItem<string>(
+      this.getProjectStorageKey(project)
+    );
 
     return data && JSON.parse(data);
   }
 
-  getAllJsonBackup(): IAllJsonBackup {
+  async getAllJsonBackup(): Promise<IAllJsonBackup> {
     const _return = {} as IAllJsonBackup;
 
-    _return[localStorageKey] = this.gwtProjectListJsonBackup();
+    _return[localStorageKey] = await this.gwtProjectListJsonBackup();
 
-    this.projects.forEach((project) => {
+    for (const project of this.projects) {
       _return[this.getProjectStorageKey(project)] =
-        this.getProjectJsonBackup(project);
-    });
+        await this.getProjectJsonBackup(project);
+    }
 
     return _return;
   }
 
-  setAllJsonBackup(backup: IAllJsonBackup): void {
-    Object.entries(backup).forEach(([key, data]) => {
-      localStorage.setItem(key, JSON.stringify(data));
-    });
+  async setAllJsonBackup(backup: IAllJsonBackup): Promise<void> {
+    for (const [key, data] of Object.entries(backup)) {
+      await localForage.setItem(key, JSON.stringify(data));
+    }
+
     this.reInit();
   }
 
-  restoreProjectsFromLocalStorage(): void {
-    const parsed = this.gwtProjectListJsonBackup();
+  async restoreProjectsFromLocalStorage(): Promise<void> {
+    const parsed = await this.gwtProjectListJsonBackup();
 
     this.projects = parsed?.projects || this.projects;
     this.currentProjectIndex =
       parsed?.currentProjectIndex || this.currentProjectIndex;
   }
 
-  restoreCurrentProjectDataFromLocalStorage(): void {
+  async restoreCurrentProjectDataFromLocalStorage(): Promise<void> {
     this.activeFrame = undefined;
     this.activeAnimation = undefined;
     this.allImagesInOne = undefined;
     this.spriteSheet = undefined;
 
-    const parsed = this.getProjectJsonBackup(this.currentProject);
+    const parsed = await this.getProjectJsonBackup(this.currentProject);
 
     this.images = parsed?.images || [];
     this.frames = parsed?.frames || [];

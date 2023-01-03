@@ -7,9 +7,15 @@ export const BackupWindow: React.FC = () => {
   return (
     <div>
       <button
-        onClick={() => {
+        onClick={async () => {
           const blob = new Blob(
-            [JSON.stringify(spriteSheetStore.getAllJsonBackup(), null, 2)],
+            [
+              JSON.stringify(
+                await spriteSheetStore.getAllJsonBackup(),
+                null,
+                2
+              ),
+            ],
             {
               type: "application/json",
             }

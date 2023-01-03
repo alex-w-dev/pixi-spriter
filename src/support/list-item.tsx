@@ -15,6 +15,9 @@ export const Container = styled.div<{
 
   .title {
     flex-grow: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    max-width: calc(100% - 16px);
   }
   .delete {
     cursor: pointer;
